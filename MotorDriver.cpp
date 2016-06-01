@@ -71,13 +71,20 @@ void MotorDriver::speed(int motor_id, int _speed)
     
     _speed = _speed<-100 ? -100 : _speed;
     _speed = _speed>100 ? 100 : _speed;
-    
-    if(motor_id == 0 && speed0 == _speed)return;
-    else speed0 = _speed;
-    
-    if(motor_id == 1 && speed1 == _speed)return;
-    else speed1 = _speed;
-    
+    /*
+    if(motor_id == 0 && speed0 == _speed){return;}
+    else{speed0 = _speed;}
+    */
+    if(motor_id == 0)
+    {
+      speed0 = _speed;
+    }
+
+    if(motor_id == 1)
+    {
+      speed1 = _speed;
+    }
+
     switch(motor_id)
     {
         case 0:
