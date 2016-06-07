@@ -19,6 +19,7 @@
 //
 /*******************************************************************************/
 #include "MotorDriver.h"
+#include "LineSensing.h"
 #include "seeed_pwm.h"
 
 void MotorDriver::begin()
@@ -34,6 +35,7 @@ void MotorDriver::begin()
     digitalWrite(MOTORSHIELD_IN3, LOW);
     digitalWrite(MOTORSHIELD_IN4, LOW);
     PWM.init();
+    curr_time = 0;
 }
 
 void MotorDriver::stop(unsigned char motor_id)
@@ -63,6 +65,51 @@ void MotorDriver::brake(unsigned char motor_id)
         
         default:;
     }
+}
+
+
+// Turn the robot around ---------------------
+void MotorDriver::turnAround()
+{
+  speed(RMOTOR, 90);  
+  speed(LMOTOR, -90);
+  delay(300);
+  int rOn, lOn;
+    
+  while(true)
+  {
+    // spin right, reading the line sensors
+    speed(RMOTOR, 90);  
+    speed(LMOTOR, -90);
+    readLineSensor(RSENSOR, &rOn, &lOn);
+    readLineSensor(LSENSOR, &rOn, &lOn);
+    delay(10);
+    // If it doesnt find the line on spins again try this.
+   
+    if(rOn == 1)
+    {
+      //we found the line, veer right
+       speed(RMOTOR, 100);  
+       speed(LMOTOR, 80);
+       break;
+    }
+    
+  }
+}
+
+// Turn the robot 45degrees ------------------------
+void MotorDriver::turn45()
+{
+  curr_time = millis();
+  //spin right for DEGREE_curr_time
+  while(millis() - curr_time < DEGREE_TIME)
+  {
+      speed(RMOTOR, 100);  
+      speed(LMOTOR, -100);
+  }
+  
+  stop(RMOTOR);  
+  stop(LMOTOR);
 }
 
 void MotorDriver::speed(int motor_id, int _speed)

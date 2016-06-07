@@ -134,9 +134,13 @@ void readLineSensor(int sensorByte, int *rOn, int *lOn){
 // Read values from all line sensors -----------------------------
 void readLineSensors(int *rOn, int *lOn){
   uint8_t sensorValue;
-
+  int centerVal = analogRead(A0);
+  //Serial.print("centerVal: ");Serial.println(centerVal);
+  delay(50);
+  
   //if center sensor is on then we're okay
-  if (false) //(center is on)
+  //if(centerVal > CENTERTHRESHOLD) //(center is on)
+  if(false)
   {
     *rOn = 1;
     *lOn = 1;

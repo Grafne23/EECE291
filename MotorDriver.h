@@ -16,6 +16,12 @@
 #define MOTORA 			0
 #define MOTORB 			1
 
+/* custom defines*/
+#define RMOTOR 0       //right motor pin
+#define LMOTOR 1       //left motor pin
+#define DEGREE_TIME 600
+
+
 #define SPD_BUFF_STEPS        100
 
 /**Class for Motor Shield**/
@@ -25,6 +31,7 @@ class MotorDriver
 private:
     int speed0;
     int speed1;
+    unsigned long curr_time;
 
     // motor pin numbers:
     int motor_pin_a_plus;
@@ -41,6 +48,8 @@ public:
     void speed(int motor_id, int _speed);
     void stop(unsigned char motor_id);
     void brake(unsigned char motor_id);
+    void turn45();
+    void turnAround();
 
 };
 
