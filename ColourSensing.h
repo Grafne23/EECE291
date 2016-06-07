@@ -17,6 +17,7 @@
 #define RED 0
 #define BLUE 1
 #define GREEN 2
+#define NO_COLOUR 3
 
 int averageValues (int array[]);
 int getAverageReadings();

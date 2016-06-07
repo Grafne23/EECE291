@@ -77,21 +77,21 @@ void followLineBackwards(int rOn, int lOn, MotorDriver motorDriver)
   if (rOn == 0 && lOn == 1)     // veer left
     {
     motorDriver.speed(RMOTOR, -100);  
-    motorDriver.speed(LMOTOR, -85);
+    motorDriver.speed(LMOTOR, -50);
     delay(70);
     }
   
   if (rOn == 1 && lOn == 0)     // veer right
     {
-    motorDriver.speed(RMOTOR, -85);  
+    motorDriver.speed(RMOTOR, -50);
     motorDriver.speed(LMOTOR, -100);
     delay(70);
     }
   
   if (rOn == 0 && lOn == 0)     // spin on the spot
   {
-    motorDriver.speed(RMOTOR, 100); 
-    motorDriver.speed(LMOTOR, -100);
+    motorDriver.speed(RMOTOR, 0);
+    motorDriver.speed(LMOTOR, 0);
     delay(100);
   }
 

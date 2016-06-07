@@ -127,7 +127,9 @@ void setColour(int colour)
       analogWrite(C_LED_PIN3, ON);
       break;
     default:
-      Serial.println("cannot display this colour!");
+      analogWrite(C_LED_PIN1, ON);
+      analogWrite(C_LED_PIN2, ON);
+      analogWrite(C_LED_PIN3, ON);
       break;
   }
 }

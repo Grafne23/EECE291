@@ -22,7 +22,7 @@ long objectDistance;
 
 enum states{
   findOne,
-  goToOne, 
+  goToOne,
   stopAndDetect,
   turn,
   goBack,
@@ -75,7 +75,7 @@ void loop() {
         {
           Serial.print("object at distance: ");Serial.println(objectDistance);
           state = goToOne;
-          setColour(BLUE);
+          setColour(NO_COLOUR);
         } else
         {
           //Serial.println("No object detected!");
@@ -113,7 +113,7 @@ void loop() {
           {
             //Something went rather wrong :(
             //setColour(GREEN);
-            objectDistance = last_distance;
+            objectDistance = last_distance - 1;
             distance_readings = 0;
           }
           delay(10);
@@ -126,12 +126,12 @@ void loop() {
     // ----------Stop and detect the objects colour -------------------
     case stopAndDetect:
     Serial.println("Sensing colour now");
-      setColour(RED);
+      //setColour(RED);
       motorDriver.stop(RMOTOR);
       motorDriver.stop(LMOTOR);
-      delay(1000);
+      delay(500);
       detectObjectColourAveraging();
-      delay(1000);
+      delay(500);
       curr_time = millis();
       state = turn;
       break;
@@ -144,8 +144,9 @@ void loop() {
        // ---------- return to the center-------------------
     case goBack:
       readLineSensors(&rOn, &lOn);
-      followLine(rOn, lOn, motorDriver);
-      if(millis() - curr_time > out_time)
+      followLine(rOn, lOn, motorDriver); //change to backwards?
+      //Serial.print("rOn: ");Serial.print(rOn);Serial.print("lOn: ");Serial.println(lOn);
+      if(millis() - curr_time > out_time * 1.05)
       {
         curr_time = millis();
         state = halt;
