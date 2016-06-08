@@ -12,7 +12,7 @@ int samples[NUM_SAMPLES];
 int averageValues (int array[]){
   int index;
   int sum = 0;
-  for(index = 0; index < NUM_SAMPLES-1; index++){
+  for(index = 0; index < NUM_SAMPLES; index++){
     sum += array[index];
   }
   return sum/NUM_SAMPLES;

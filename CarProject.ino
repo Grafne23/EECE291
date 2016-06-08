@@ -7,8 +7,9 @@
 
 #define STRAIGHT1_DONE 10000
 #define DISTANCE_ATTEMPTS 10
-#define STOP_DISTANCE 3
+#define STOP_DISTANCE 2
 #define MAX_OBJECT_DISTANCE 80
+#define RETURN_FACTOR 0.90
 
 MotorDriver motorDriver;
 
@@ -62,7 +63,7 @@ void setup() {
   pinMode(COLOUR_PIN_S3, OUTPUT);
   pinMode(COLOUR_OUT, INPUT);
   
-  // Setting frequency-scaling to 20%
+  // Setting frequency-scaling to 100%
   digitalWrite(COLOUR_PIN_S0_S1,HIGH);
   //digitalWrite(COLOUR_PIN_S1,HIGH);
   
@@ -86,7 +87,7 @@ void loop() {
   { 
     // ----------Find an object-------------------
     case findOne:
-      setColour(GREEN);
+      //setColour(GREEN);
       if(distance_readings < DISTANCE_ATTEMPTS)
       {
         objectDistance = getDistance();
@@ -180,7 +181,7 @@ void loop() {
       readLineSensors(&rOn, &lOn);
       followLine(rOn, lOn, motorDriver); //change to backwards?
       //Serial.print("rOn: ");Serial.print(rOn);Serial.print("lOn: ");Serial.println(lOn);
-      if(millis() - curr_time > out_time * 0.95)
+      if(millis() - curr_time > out_time * RETURN_FACTOR)
       {
         curr_time = millis();
         state = halt;
@@ -191,7 +192,7 @@ void loop() {
       motorDriver.stop(LMOTOR);
       delay(100);
       //If we still have objects to find
-      if(objectCount < 4)
+      if(objectCount < 3)
       {
         if(currentPos < 4) 
         {
@@ -204,11 +205,16 @@ void loop() {
         distance_readings = 0;
         
         state = findOne;
+      } else
+      {
+        setColour(GREEN);
       }
       break;
     case justDistance:
       objectDistance = getDistance();
       Serial.print("object at distance: ");Serial.print(objectDistance);Serial.println(" cm");
+      delay(500);
+     // detectObjectColourAveraging();
       delay(500);
     default:
       break;

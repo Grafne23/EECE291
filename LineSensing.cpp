@@ -140,6 +140,9 @@ void lookForLine(MotorDriver motorDriver)
   {
     return;
   }
+  motorDriver.speed(RMOTOR, 100);
+  motorDriver.speed(LMOTOR, 100);
+  delay(500);
   
   do {
    if(sweep)
