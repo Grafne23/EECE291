@@ -7,8 +7,8 @@
 
 #define STRAIGHT1_DONE 10000
 #define DISTANCE_ATTEMPTS 10
-#define STOP_DISTANCE 4
-
+#define STOP_DISTANCE 3
+#define MAX_OBJECT_DISTANCE 80
 
 MotorDriver motorDriver;
 
@@ -21,12 +21,13 @@ unsigned long seek_time = 0;
 /* This array will represent the positions of the board numbered 0-7
   7    0    1
     \  |  /
-  6  - *  -  2
+  6 -- * -- 2
     /  |  \
   5    4    3
 */
 int positions[8] = {0};
 int currentPos = 0;
+int objectCount = 0;
 
 int distance_readings;
 long objectDistance;
@@ -37,7 +38,8 @@ enum states{
   stopAndDetect,
   turn,
   goBack,
-  halt
+  halt,
+  justDistance
 };
 
 states state = findOne;
@@ -73,11 +75,13 @@ void setup() {
 
 void loop() {
   // ------------- State Machine ----------------------
+  /*
   for(int i = 0; i < 8; i++)
   {
     Serial.print(positions[i]);
   }
-  Serial.print("curpos: ");Serial.println(currentPos);
+  */
+  //Serial.print("curpos: ");Serial.println(currentPos);
   switch(state)
   { 
     // ----------Find an object-------------------
@@ -88,12 +92,13 @@ void loop() {
         objectDistance = getDistance();
         Serial.print("object at distance: ");Serial.println(objectDistance);
         delay(50);
-        if(objectDistance > 0 && objectDistance < 75) //found an object on this point
+        if(objectDistance > 0 && objectDistance < MAX_OBJECT_DISTANCE) //found an object on this point
         {
           Serial.print("object at distance: ");Serial.println(objectDistance);
           if(positions[currentPos] == 0)
           {
             state = goToOne;
+            objectCount++;
             seek_time = millis();
             setColour(NO_COLOUR);
             positions[currentPos] = 1;
@@ -166,8 +171,8 @@ void loop() {
     // ----------Turn around-------------------
     case turn:
       motorDriver.turnAround();
-      state = goBack;
       delay(100);
+      state = goBack;
       curr_time = millis();
       break;
        // ---------- return to the center-------------------
@@ -185,18 +190,26 @@ void loop() {
       motorDriver.stop(RMOTOR);
       motorDriver.stop(LMOTOR);
       delay(100);
-      if(currentPos < 4) 
+      //If we still have objects to find
+      if(objectCount < 4)
       {
-        currentPos += 4;
-      } else
-      {
-        currentPos -= 4;
+        if(currentPos < 4) 
+        {
+          currentPos += 4;
+        } else
+        {
+          currentPos -= 4;
+        }
+  
+        distance_readings = 0;
+        
+        state = findOne;
       }
-
-      distance_readings = 0;
-      
-      state = findOne;
       break;
+    case justDistance:
+      objectDistance = getDistance();
+      Serial.print("object at distance: ");Serial.print(objectDistance);Serial.println(" cm");
+      delay(500);
     default:
       break;
   }

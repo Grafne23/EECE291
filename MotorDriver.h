@@ -19,7 +19,7 @@
 /* custom defines*/
 #define RMOTOR 0       //right motor pin
 #define LMOTOR 1       //left motor pin
-#define DEGREE_TIME 590
+#define DEGREE_TIME 610
 
 
 #define SPD_BUFF_STEPS        100
