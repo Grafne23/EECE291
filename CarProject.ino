@@ -30,7 +30,7 @@ int positions[8] = {0};
 int currentPos = 0;
 int objectCount = 0;
 
-int distance_readings;
+int distance_readings = 0;
 long objectDistance;
 
 enum states{
@@ -40,7 +40,7 @@ enum states{
   turn,
   goBack,
   halt,
-  justDistance
+  justDistance //This is used for Module 2 Requirement 4 only
 };
 
 states state = findOne;
@@ -54,8 +54,6 @@ void setup() {
   WriteByte(sensorAddr, 0x3, 0xFE);
   WriteByte(sensorAddr, 0x2, 0xFE);
 
-  /* For Ultra Sonic Distance Sensor */ 
-
   /* For Colour Sensor */  
   pinMode(COLOUR_PIN_S0_S1, OUTPUT);
   //pinMode(COLOUR_PIN_S1, OUTPUT);
@@ -65,30 +63,19 @@ void setup() {
   
   // Setting frequency-scaling to 100%
   digitalWrite(COLOUR_PIN_S0_S1,HIGH);
-  //digitalWrite(COLOUR_PIN_S1,HIGH);
   
   pinMode(C_LED_PIN1, OUTPUT);
   pinMode(C_LED_PIN2, OUTPUT);
   pinMode(C_LED_PIN3, OUTPUT);
-
-  distance_readings = 0;
 }
 
 void loop() {
   // ------------- State Machine ----------------------
-  /*
-  for(int i = 0; i < 8; i++)
-  {
-    Serial.print(positions[i]);
-  }
-  */
-  //Serial.print("curpos: ");Serial.println(currentPos);
   switch(state)
   { 
     // ----------Find an object-------------------
     case findOne:
-      //setColour(GREEN);
-      if(distance_readings < DISTANCE_ATTEMPTS)
+      if(distance_readings < DISTANCE_ATTEMPTS) //Take multiple readings to be sure
       {
         objectDistance = getDistance();
         Serial.print("object at distance: ");Serial.println(objectDistance);
@@ -96,9 +83,9 @@ void loop() {
         if(objectDistance > 0 && objectDistance < MAX_OBJECT_DISTANCE) //found an object on this point
         {
           Serial.print("object at distance: ");Serial.println(objectDistance);
-          if(positions[currentPos] == 0)
+          if(positions[currentPos] == 0) //If we haven't visited this one before
           {
-            state = goToOne;
+            state = goToOne; //next state
             objectCount++;
             seek_time = millis();
             setColour(NO_COLOUR);
@@ -110,13 +97,12 @@ void loop() {
           }
         } else
         {
-          //Serial.println("No object detected!");
           distance_readings++;
         }
       } else 
       {
-        /* we've tried to find an object five times at this corner with no luck,
-         * turn 45 degrees and try again!
+        /* we've tried to find an object DISTANCE_ATTEMPTS times at this corner with no luck,
+         * or we've visited this one already. Turn 45 degrees and try again!
          */
          motorDriver.turn45();
          currentPos++;
@@ -124,67 +110,62 @@ void loop() {
          distance_readings = 0;
       }
       break;
-    // ----------Go Towards the object until the distance is < 5 cm -------------------
+    // ----------Go Towards the object until the distance is < STOP_DISTANCE cm -------------------
     case goToOne:
         while(objectDistance > STOP_DISTANCE)
         {
           //read line sensors & follow line
           readLineSensors(&rOn, &lOn);
-          //drive base on line sensors
-          //Serial.print("rOn: ");Serial.print(rOn);Serial.print("lOn: ");Serial.println(lOn);
           followLine(rOn, lOn, motorDriver);
 
-          //distance_readings = 0;
           long last_distance = objectDistance;
-          //do {
-            objectDistance = getDistance();
-          //  if(objectDistance < last_distance - 15) objectDistance = -1; //temp
-          //  distance_readings++;
-            delay(10);
-          //} while (objectDistance < 0 && distance_readings < DISTANCE_ATTEMPTS);
+          objectDistance = getDistance();
+          delay(10);
 
           if(objectDistance < 0)
           {
-            //Something went rather wrong :(
-            //setColour(GREEN);
+            /* Someimes if it takes a reading while adjusting for the line it can miss the object,
+             * since we're sure the object was there ignore this 'no object' reading by replacing it with
+             * the most recent reading minus 1 centimeter.
+             */
             objectDistance = last_distance - 1;
-            //distance_readings = 0;
           }
           delay(10);
           Serial.print("object at distance: "); Serial.println(objectDistance);
         }
+        
         //we've reached the stopping distance
-        state = stopAndDetect;
-        out_time = millis() - seek_time;
+        state = stopAndDetect; //next state
+        /* Keep track of how long it took us to get there so we can return */
+        out_time = millis() - seek_time; 
       break;
     // ----------Stop and detect the objects colour -------------------
     case stopAndDetect:
-    Serial.println("Sensing colour now");
-      //setColour(RED);
+      //stop
       motorDriver.stop(RMOTOR);
       motorDriver.stop(LMOTOR);
       delay(500);
       detectObjectColourAveraging();
       delay(500);
       curr_time = millis();
-      state = turn;
+      state = turn; //next state
       break;
     // ----------Turn around-------------------
     case turn:
       motorDriver.turnAround();
       delay(100);
-      state = goBack;
+      state = goBack; //next state
       curr_time = millis();
       break;
        // ---------- return to the center-------------------
     case goBack:
       readLineSensors(&rOn, &lOn);
-      followLine(rOn, lOn, motorDriver); //change to backwards?
-      //Serial.print("rOn: ");Serial.print(rOn);Serial.print("lOn: ");Serial.println(lOn);
+      followLine(rOn, lOn, motorDriver);
+      /* Return to the middle base on a factor of the time it took us to get out there */
       if(millis() - curr_time > out_time * RETURN_FACTOR)
       {
         curr_time = millis();
-        state = halt;
+        state = halt; //next state
       }
       break;
     case halt:
@@ -194,19 +175,20 @@ void loop() {
       //If we still have objects to find
       if(objectCount < 3)
       {
-        if(currentPos < 4) 
-        {
+        /* update the position the robot is facing to account for the fact we returned 
+         *  after an 180 degree turn.
+         */
+        if(currentPos < 4) {
           currentPos += 4;
-        } else
-        {
+        } else {
           currentPos -= 4;
         }
   
         distance_readings = 0;
-        
-        state = findOne;
+        state = findOne; //look for the next one
       } else
       {
+        /* We've found three! */
         setColour(GREEN);
       }
       break;
@@ -215,7 +197,7 @@ void loop() {
       Serial.print("object at distance: ");Serial.print(objectDistance);Serial.println(" cm");
       delay(500);
      // detectObjectColourAveraging();
-      delay(500);
+     // delay(500);
     default:
       break;
   }

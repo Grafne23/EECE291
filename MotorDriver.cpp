@@ -71,6 +71,7 @@ void MotorDriver::brake(unsigned char motor_id)
 // Turn the robot around ---------------------
 void MotorDriver::turnAround()
 {
+  //backup first
   speed(RMOTOR, -100);  
   speed(LMOTOR, -100);
   delay(500);
@@ -78,7 +79,8 @@ void MotorDriver::turnAround()
   speed(RMOTOR, 0);  
   speed(LMOTOR, 0);
   delay(100);
-  
+
+  //make sure we've turned enough to be off a line
   speed(RMOTOR, 100);  
   speed(LMOTOR, -100);
   delay(1000);
@@ -92,8 +94,7 @@ void MotorDriver::turnAround()
     readLineSensor(RSENSOR, &rOn, &lOn);
     readLineSensor(LSENSOR, &rOn, &lOn);
     delay(50);
-    // If it doesnt find the line on spins again try this.
-   
+    
     if(lOn == 1)
     {
       //we found the line, veer right

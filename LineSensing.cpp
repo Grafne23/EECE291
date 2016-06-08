@@ -65,38 +65,6 @@ void followLine(int rOn, int lOn, MotorDriver motorDriver)
   }
 }
 
-void followLineBackwards(int rOn, int lOn, MotorDriver motorDriver)
-{
-  if (rOn == 1 && lOn == 1)     // move backwards
-    {
-    motorDriver.speed(RMOTOR, -100);  
-    motorDriver.speed(LMOTOR, -100);
-    delay(1000);
-    }
-  
-  if (rOn == 0 && lOn == 1)     // veer left
-    {
-    motorDriver.speed(RMOTOR, -100);  
-    motorDriver.speed(LMOTOR, -50);
-    delay(70);
-    }
-  
-  if (rOn == 1 && lOn == 0)     // veer right
-    {
-    motorDriver.speed(RMOTOR, -50);
-    motorDriver.speed(LMOTOR, -100);
-    delay(70);
-    }
-  
-  if (rOn == 0 && lOn == 0)     // spin on the spot
-  {
-    motorDriver.speed(RMOTOR, 0);
-    motorDriver.speed(LMOTOR, 0);
-    delay(100);
-  }
-
-}
-
 // Reading values from line sensor -----------------------------
 void readLineSensor(int sensorByte, int *rOn, int *lOn){
   uint8_t sensorValue;
@@ -131,6 +99,7 @@ void readLineSensor(int sensorByte, int *rOn, int *lOn){
   }
 }
 
+// This function sweeps back and forth looking for a line -----------
 void lookForLine(MotorDriver motorDriver)
 {
   int rOn, lOn, sweep = 0;
@@ -160,29 +129,10 @@ void lookForLine(MotorDriver motorDriver)
   } while (rOn == 0 && lOn == 0);
 }
 
-// Read values from all line sensors -----------------------------
+// Read values from both line sensors -----------------------------
 void readLineSensors(int *rOn, int *lOn){
-  uint8_t sensorValue;
-  int centerVal = analogRead(A0);
-  //Serial.print("centerVal: ");Serial.println(centerVal);
-  //delay(50);
-  
-  //if center sensor is on then we're okay
-  //if(centerVal > CENTERTHRESHOLD) //(center is on)
-  if(false)
-  {
-    *rOn = 1;
-    *lOn = 1;
-    return;
-  }
-  else
-  {
-    //otherwise read the two sides
-    readLineSensor(RSENSOR, rOn, lOn);
-    readLineSensor(LSENSOR, rOn, lOn); 
-    //3 options center on with either side off or all off.
-    return; // ? - might just work.
-  }
+  readLineSensor(RSENSOR, rOn, lOn);
+  readLineSensor(LSENSOR, rOn, lOn); 
 }
 
 
