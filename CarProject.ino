@@ -97,10 +97,10 @@ void loop() {
           //read line sensors & follow line
           readLineSensors(&rOn, &lOn);
           //drive base on line sensors
-          Serial.print("rOn: ");Serial.print(rOn);Serial.print("lOn: ");Serial.println(lOn);
+          //Serial.print("rOn: ");Serial.print(rOn);Serial.print("lOn: ");Serial.println(lOn);
           followLine(rOn, lOn, motorDriver);
 
-          distance_readings = 0;
+          //distance_readings = 0;
           long last_distance = objectDistance;
           //do {
             objectDistance = getDistance();
@@ -114,7 +114,7 @@ void loop() {
             //Something went rather wrong :(
             //setColour(GREEN);
             objectDistance = last_distance - 1;
-            distance_readings = 0;
+            //distance_readings = 0;
           }
           delay(10);
           Serial.print("object at distance: "); Serial.println(objectDistance);

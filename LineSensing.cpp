@@ -40,7 +40,7 @@ void followLine(int rOn, int lOn, MotorDriver motorDriver)
     {
     motorDriver.speed(RMOTOR, 100);  
     motorDriver.speed(LMOTOR, 100);
-    delay(1000);
+    delay(500);
     }
   
   if (rOn == 0 && lOn == 1)     // veer left
@@ -136,7 +136,7 @@ void readLineSensors(int *rOn, int *lOn){
   uint8_t sensorValue;
   int centerVal = analogRead(A0);
   //Serial.print("centerVal: ");Serial.println(centerVal);
-  delay(50);
+  //delay(50);
   
   //if center sensor is on then we're okay
   //if(centerVal > CENTERTHRESHOLD) //(center is on)
