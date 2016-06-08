@@ -40,7 +40,7 @@ void followLine(int rOn, int lOn, MotorDriver motorDriver)
     {
     motorDriver.speed(RMOTOR, 100);  
     motorDriver.speed(LMOTOR, 100);
-    delay(500);
+    delay(100);
     }
   
   if (rOn == 0 && lOn == 1)     // veer left
@@ -59,8 +59,8 @@ void followLine(int rOn, int lOn, MotorDriver motorDriver)
   
   if (rOn == 0 && lOn == 0)     // spin on the spot
   {
-    motorDriver.speed(RMOTOR, 100); 
-    motorDriver.speed(LMOTOR, -100);
+    motorDriver.speed(RMOTOR, -100); 
+    motorDriver.speed(LMOTOR, 100);
     delay(100);
   }
 }
@@ -129,6 +129,32 @@ void readLineSensor(int sensorByte, int *rOn, int *lOn){
   { 
     Serial.println("Failed to read from  a sensor");   
   }
+}
+
+void lookForLine(MotorDriver motorDriver)
+{
+  int rOn, lOn, sweep = 0;
+  readLineSensor(RSENSOR, &rOn, &lOn);
+  readLineSensor(LSENSOR, &rOn, &lOn);
+  if(rOn == 1 || lOn == 1)
+  {
+    return;
+  }
+  
+  do {
+   if(sweep)
+   {
+      motorDriver.speed(RMOTOR, -40);
+      motorDriver.speed(LMOTOR, 40);
+   } else {
+      motorDriver.speed(RMOTOR, 40);
+      motorDriver.speed(LMOTOR, -40);
+   }
+   delay(300);
+   readLineSensor(RSENSOR, &rOn, &lOn);
+   readLineSensor(LSENSOR, &rOn, &lOn);
+   delay(10);
+  } while (rOn == 0 && lOn == 0);
 }
 
 // Read values from all line sensors -----------------------------

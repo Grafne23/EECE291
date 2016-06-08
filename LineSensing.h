@@ -21,4 +21,5 @@ void readLineSensor(int sensorByte, int *rOn, int *lOn);
 void readLineSensors(int *rOn, int *lOn);
 int ReadByte(uint8_t addr, uint8_t reg, uint8_t *data); 
 void WriteByte(uint8_t addr, uint8_t reg, byte data);
+void lookForLine(MotorDriver motorDriver);
 

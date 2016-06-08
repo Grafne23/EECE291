@@ -6,8 +6,8 @@
 #include <Wire.h>
 
 #define STRAIGHT1_DONE 10000
-#define DISTANCE_ATTEMPTS 5
-#define STOP_DISTANCE 2
+#define DISTANCE_ATTEMPTS 10
+#define STOP_DISTANCE 4
 
 
 MotorDriver motorDriver;
@@ -16,6 +16,17 @@ int rOn = 0;
 int lOn = 0;
 unsigned long curr_time = 0;
 unsigned long out_time = 0;
+unsigned long seek_time = 0;
+
+/* This array will represent the positions of the board numbered 0-7
+  7    0    1
+    \  |  /
+  6  - *  -  2
+    /  |  \
+  5    4    3
+*/
+int positions[8] = {0};
+int currentPos = 0;
 
 int distance_readings;
 long objectDistance;
@@ -62,6 +73,11 @@ void setup() {
 
 void loop() {
   // ------------- State Machine ----------------------
+  for(int i = 0; i < 8; i++)
+  {
+    Serial.print(positions[i]);
+  }
+  Serial.print("curpos: ");Serial.println(currentPos);
   switch(state)
   { 
     // ----------Find an object-------------------
@@ -70,12 +86,22 @@ void loop() {
       if(distance_readings < DISTANCE_ATTEMPTS)
       {
         objectDistance = getDistance();
-        delay(10);
-        if(objectDistance > 0 && objectDistance < 90) //found an object on this corner
+        Serial.print("object at distance: ");Serial.println(objectDistance);
+        delay(50);
+        if(objectDistance > 0 && objectDistance < 75) //found an object on this point
         {
           Serial.print("object at distance: ");Serial.println(objectDistance);
-          state = goToOne;
-          setColour(NO_COLOUR);
+          if(positions[currentPos] == 0)
+          {
+            state = goToOne;
+            seek_time = millis();
+            setColour(NO_COLOUR);
+            positions[currentPos] = 1;
+            lookForLine(motorDriver);
+          } else
+          {
+            distance_readings++;
+          }
         } else
         {
           //Serial.println("No object detected!");
@@ -87,6 +113,8 @@ void loop() {
          * turn 45 degrees and try again!
          */
          motorDriver.turn45();
+         currentPos++;
+         if(currentPos == 8) currentPos = 0;
          distance_readings = 0;
       }
       break;
@@ -121,7 +149,7 @@ void loop() {
         }
         //we've reached the stopping distance
         state = stopAndDetect;
-        out_time = millis();
+        out_time = millis() - seek_time;
       break;
     // ----------Stop and detect the objects colour -------------------
     case stopAndDetect:
@@ -140,13 +168,14 @@ void loop() {
       motorDriver.turnAround();
       state = goBack;
       delay(100);
+      curr_time = millis();
       break;
        // ---------- return to the center-------------------
     case goBack:
       readLineSensors(&rOn, &lOn);
       followLine(rOn, lOn, motorDriver); //change to backwards?
       //Serial.print("rOn: ");Serial.print(rOn);Serial.print("lOn: ");Serial.println(lOn);
-      if(millis() - curr_time > out_time * 1.05)
+      if(millis() - curr_time > out_time * 0.95)
       {
         curr_time = millis();
         state = halt;
@@ -156,6 +185,17 @@ void loop() {
       motorDriver.stop(RMOTOR);
       motorDriver.stop(LMOTOR);
       delay(100);
+      if(currentPos < 4) 
+      {
+        currentPos += 4;
+      } else
+      {
+        currentPos -= 4;
+      }
+
+      distance_readings = 0;
+      
+      state = findOne;
       break;
     default:
       break;
