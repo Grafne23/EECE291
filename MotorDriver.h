@@ -1,10 +1,10 @@
 // new motor shield library
-// by loovee
-// 2016-3-11
+// by loovee, Updated (and fixed) by Graeme
 #ifndef __MOTORDRIVER_H__
 #define __MOTORDRIVER_H__
 
 #include <Arduino.h>
+#include <Servo.h>
 /******Pins definitions*************/
 #define MOTORSHIELD_IN1	8
 #define MOTORSHIELD_IN2	11
@@ -20,6 +20,8 @@
 #define RMOTOR 0       //right motor pin
 #define LMOTOR 1       //left motor pin
 #define DEGREE_TIME 610
+#define SERVO_PIN 14
+#define ARM_REST 150
 
 
 #define SPD_BUFF_STEPS        100
@@ -38,11 +40,12 @@ private:
     int motor_pin_a_minus;
     int motor_pin_b_plus;
     int motor_pin_b_minus;
+    Servo servoArm;
 
 public:
 
     void begin();
-
+    
     // motor_num: 0, 1
     // speed: 0~100
     void speed(int motor_id, int _speed);
@@ -50,8 +53,7 @@ public:
     void brake(unsigned char motor_id);
     void turn45();
     void turnAround();
-
+    void swingArm();
 };
-
 
 #endif

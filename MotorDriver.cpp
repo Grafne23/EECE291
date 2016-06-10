@@ -36,6 +36,8 @@ void MotorDriver::begin()
     digitalWrite(MOTORSHIELD_IN4, LOW);
     PWM.init();
     curr_time = 0;
+    servoArm.attach(SERVO_PIN);
+    servoArm.write(ARM_REST);
 }
 
 void MotorDriver::stop(unsigned char motor_id)
@@ -191,3 +193,21 @@ void MotorDriver::speed(int motor_id, int _speed)
         default:;
     }
 }
+
+// Swing the robot Arm ------------------------
+void MotorDriver::swingArm()
+{
+  //swing to 90 degrees
+  servoArm.write(90); 
+  delay(100);
+  //now slowly swing so as to not knock over the object
+  for (int pos = 90; pos >= 10; pos -= 10) { 
+    servoArm.write(pos);             
+    delay(100);                       
+  }
+  delay(500);
+  //return to resting position
+  servoArm.write(ARM_REST);
+}
+
+
