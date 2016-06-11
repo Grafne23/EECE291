@@ -5,6 +5,7 @@
 #include "SerialComs.h"
 #include "WheelEncoders.h"
 
+//#include <Servo.h>
 #include <Wire.h>
 
 #define STRAIGHT1_DONE 10000
@@ -12,7 +13,11 @@
 #define STOP_DISTANCE 2
 #define MAX_OBJECT_DISTANCE 80
 #define RETURN_FACTOR 0.90
+#define ARM_REST 150
+#define SERVO_PIN 14
+#define MAX_OBJECTS 6
 
+//Servo servoArm;
 MotorDriver motorDriver;
 
 int rOn = 0;
@@ -77,6 +82,9 @@ void setup() {
   pinMode(C_LED_PIN1, OUTPUT);
   pinMode(C_LED_PIN2, OUTPUT);
   pinMode(C_LED_PIN3, OUTPUT);
+
+  //servoArm.attach(SERVO_PIN);
+  //servoArm.write(ARM_REST);
 }
 
 void loop() {
@@ -158,7 +166,7 @@ void loop() {
       delay(500);
       detectObjectColourAveraging();
       detectedColour = detectObjectColour();
-      coloursIn[objectCount - 1] = detectedColour;
+      coloursIn[currentPos] = detectedColour;
       delay(500);
       curr_time = millis();
       if (detectedColour == RED)
@@ -168,7 +176,7 @@ void loop() {
       break;
     //-----------Attack the red object------------
     case attack:
-      motorDriver.swingArm();
+     // swingArm();
       delay(100);
       state = turn;
       curr_time = millis();
@@ -196,7 +204,7 @@ void loop() {
       motorDriver.stop(LMOTOR);
       delay(100);
       //If we still have objects to find
-      if(objectCount < 3)
+      if(objectCount < MAX_OBJECTS)
       {
         /* update the position the robot is facing to account for the fact we returned 
          *  after an 180 degree turn.
@@ -221,7 +229,6 @@ void loop() {
       objectDistance = getDistance();
       Serial.print("object at distance: ");Serial.print(objectDistance);Serial.println(" cm");
       delay(500);
-      writeToEEPROM(orderIn, coloursIn);
       SendData();
      // detectObjectColourAveraging();
      // delay(500);
@@ -231,3 +238,20 @@ void loop() {
   delay(50);
 }
 
+/*
+// Swing the robot Arm ------------------------
+void swingArm()
+{
+  //swing to 90 degrees
+  servoArm.write(90); 
+  delay(100);
+  //now slowly swing so as to not knock over the object
+  for (int pos = 90; pos >= 10; pos -= 10) { 
+    servoArm.write(pos);             
+    delay(100);                       
+  }
+  delay(500);
+  //return to resting position
+  servoArm.write(ARM_REST);
+}
+*/

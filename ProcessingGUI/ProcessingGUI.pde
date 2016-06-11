@@ -1,18 +1,23 @@
 import processing.serial.*;
+
+final int RED = 0;
+final int BLUE = 1;
+final int GREEN = 2;
+final int NO_OBJECT = 3;
+
 Serial port;
 
 color cor;
 int saveMe = 0;
 int startup=0;
 byte index=0;
-int rVal, gVal, bVal, wVal;
 int colours[] = new int[8];
 int order[] = new int[6];
 PImage carImage;
 int carX = 210, carY = 205;
 int visits = 0;
 int goal = order[visits];
-int done = 0;
+int done = 1;
 int returning = 0;
 String redCar = "carRed.png";
 String yellowCar = "carYellow.png";
@@ -22,36 +27,36 @@ String greenCar = "carGreen.png";
 void setup() {
   size(500, 500);
 
+  for(int i = 0; i < 8; i++)
+  {
+    colours[i] = NO_OBJECT;
+  }
   println("Available serial ports:");
   println(Serial.list());
-  
+  order[0] = -1;
+  /*
   order[0] = 1;
-  order[1] = 2;
+  order[1] = 6;
   order[2] = 4;
   order[3] = 5;
-  order[4] = 6;
+  order[4] = 3;
   order[5] = 7;
   
-  /* Keep track of the objects
-  * 0 - no object
-  * 1 - Red
-  * 2 - Blue
-  * 3 - Green
+  // Keep track of the objects
+  colours[0] = NO_OBJECT;
+  colours[1] = RED;
+  colours[2] = NO_OBJECT;
+  colours[3] = RED;
+  colours[4] = GREEN;
+  colours[5] = BLUE;
+  colours[6] = BLUE;
+  colours[7] = GREEN;
   */
-  colours[0] = 0;
-  colours[1] = 1;
-  colours[2] = 0;
-  colours[3] = 1;
-  colours[4] = 3;
-  colours[5] = 2;
-  colours[6] = 2;
-  colours[7] = 3;
-  
   // check on the output monitor wich port is available on your machine
   port = new Serial(this, Serial.list()[1], 9600);
   port.bufferUntil(' '); 
   carImage = new PImage();
-  carImage = loadImage("cars_mini.png");
+  carImage = loadImage("carYellow.png");
   carImage.resize(45, 60);
 }
 
@@ -62,11 +67,12 @@ void draw() {
   text("Group 3 GUI Demo", 25, 25); 
   textSize(16);
   
-  text(rVal, 10, 70);
-  text(gVal, 50, 70);
-  text(bVal, 90, 70);
-  text(wVal, 130, 70);
-  text(startup, 170, 70);
+  text(order[0], 250, 25);
+  text(order[1], 270, 25);
+  text(order[2], 290, 25);
+  text(order[3], 310, 25);
+  text(order[4], 330, 25);
+  text(order[5], 350, 25);
   
   strokeWeight(2);
   line(50, 60, 50, 400); //left
@@ -82,7 +88,7 @@ void draw() {
   
   DrawCircles();
   goButton();
-  
+  dataButton();
   if(done == 0)
   {
     GetNextCarPos();
@@ -90,54 +96,36 @@ void draw() {
   } else {
     image(carImage, 210, 205);
   }
+ // println("loop");
+}
+
+void dataButton()
+{
+  textSize(16);
+  fill(40);
+  rect(110, 450, 75, 25, 5);
+  fill(255);
+  text("Get Data", 115, 468);
+  if(mousePressed==true && mouseX>110 && mouseX<185 && mouseY>450 && mouseY<475)
+  {
+    println("PRESSED!");
+    getData();
+  }
 }
 
 void goButton()
 {
   textSize(16);
   fill(40);
-  rect(225, 450, 50, 25, 5);
+  rect(250, 450, 50, 25, 5);
   fill(255);
-  text("Go", 240, 468);
-  if(mousePressed==true && mouseX>225 && mouseX<275 && mouseY>450 && mouseY<475)
+  text("Go", 265, 468);
+  if(mousePressed==true && mouseX>250 && mouseX<275 && mouseY>450 && mouseY<475)
   {
-    //println("PRESSED!");
-    getData();
+    println("PRESSED");
+    println(order[0]);
+    if(order[0] != -1) done = 0;
   }
-}
-
-void getData()
-{
-  port.write('Q');
-  while(port.available() != 0)
-  {
-    switch(GetFromSerial())
-    {
-      case 'R':
-        rVal=GetFromSerial();
-        println(rVal);
-        break;
-      case 'G':
-        gVal=GetFromSerial();
-        println(gVal);
-        break;
-      case 'B':
-        bVal=GetFromSerial();
-        println(bVal);
-        break;
-      case 'W':
-        wVal=GetFromSerial();
-        println(wVal);
-        break;
-    }
-  }
-}
-
-int GetFromSerial()
-{
-  while (port.available()==0) {
-  }
-  return port.read();
 }
 
 void DrawCircles()
@@ -146,28 +134,28 @@ void DrawCircles()
   for(int i = 0; i < 8; i++)
   {
     //calculate the x
-    if(i < 3) x = 50;
-    else if(i < 5) x = 230; 
+    if(i > 4) x = 50;
+    else if(i == 0 || i == 4) x = 230; 
     else x = 410; 
     //calculate the y
-    if((i % 3) == 1) y = 50;
-    else if((i % 3) == 2) y = 230; 
+    if(i == 7 || i < 2) y = 50;
+    else if(i == 6 || i == 2) y = 230; 
     else y = 410; 
     
     //if(colours[i] == 0) continue;
     switch(colours[i])
     {
-      case 0:
+      case NO_OBJECT:
         stroke(245);
         fill(245, 255);
         break;
-      case 1:
+      case RED:
         fill(255, 0, 0, 255);
       break;
-      case 2:
+      case GREEN:
         fill(0, 255, 0, 255);
       break;
-      case 3:
+      case BLUE:
         fill(0, 0, 255, 255);
       break;
       default:
@@ -199,80 +187,80 @@ void GetNextCarPos()
       if(returning == 1)
       {
         carY += 1;
-        carX += 1;
       } else
       {
         carY -= 1;
-        carX -= 1;
       }
       break;
     case 1:
       if(returning == 1)
       {
         carY += 1;
+        carX -= 1;
       } else
       {
         carY -= 1;
+        carX += 1;
       }
       break;
     case 2:
       if(returning == 1)
       {
-        carY += 1;
         carX -= 1;
       } else
       {
-        carY -= 1;
         carX += 1;
       }
       break;
     case 3:
       if(returning == 1)
       {
-        carX += 1;
+        carX -= 1;
+        carY -= 1;
       } else
       {
-        carX -= 1;
+        carX += 1;
+        carY += 1;
       }
       break;
     case 4:
       if(returning == 1)
       {
-        carX -= 1;
+        carY -= 1;
       } else
       {
-        carX += 1;
+        carY += 1;
       }
       break;
     case 5:
       if(returning == 1)
       {
-        carY += 1;
+        carY -= 1;
         carX += 1;
       } else
       {
-        carY -= 1;
+        carY += 1;
         carX -= 1;
       }
       break;
    case 6:
        if(returning == 1)
       {
-        carY -= 1;
+        carX += 1;
       } else
       {
-        carY += 1;
+        carX -= 1;
       }
       break;
    case 7:
       if(returning == 1)
       {
         carY += 1;
-        carX -= 1;
+        carX += 1;
       } else
       {
         carY -= 1;
-        carX += 1;
+        carX -= 1;
       }
       break;
     default:
@@ -281,6 +269,21 @@ void GetNextCarPos()
   
   if((carY < 60 || carX < 60) || (carY > 340 || carX > 340) && (returning == 0))
   {
+    switch(colours[goal])
+    {
+      case RED: 
+        carImage = loadImage(redCar);
+        break;
+      case GREEN:
+        carImage = loadImage(greenCar);
+        break;
+      case BLUE:
+        carImage = loadImage(blueCar);
+        break;
+      default:
+        break;
+    }
+    carImage.resize(45, 60);
     returning = 1;
   }
   
@@ -309,4 +312,93 @@ void DrawCar()
   carImage = loadImage("car.png");
   carImage.resize(50, 50);
   image(carImage, 205, 205);
+}
+
+void getData()
+{
+  port.write('Q');
+  while(port.available() != 0)
+  {
+    switch(GetFromSerial())
+    {
+      case 'A':
+        println("read A");
+        order[0] = GetFromSerial();
+        println(order[0]);
+        break;
+      case 'B':
+        println("read B");
+        order[1] = GetFromSerial();
+        println(order[1]);
+        break;
+      case 'C':
+      println("read C");
+        order[2] = GetFromSerial();
+        println(order[2]);
+        break;
+      case 'D':
+      println("read D");
+        order[3] = GetFromSerial();
+        println(order[3]);
+        break;
+      case 'E':
+      println("read E");
+        order[4] = GetFromSerial();
+        println(order[4]);
+        break;
+      case 'F':
+      println("read F");
+        order[5] = GetFromSerial();
+        println(order[5]);
+        break;
+      case 'G':
+      println("read G");
+        colours[0] = GetFromSerial();
+        println(colours[0]);
+        break;
+      case 'H':
+      println("read H");
+        colours[1] = GetFromSerial();
+        println(colours[1]);
+        break;
+      case 'I':
+      println("read I");
+        colours[2] = GetFromSerial();
+        println(colours[2]);
+        break;
+      case 'J':
+      println("read J");
+        colours[3] = GetFromSerial();
+        println(colours[3]);
+        break;
+      case 'K':
+      println("read K");
+        colours[4] = GetFromSerial();
+        println(colours[4]);
+        break;
+      case 'L':
+      println("read L");
+        colours[5] = GetFromSerial();
+        println(colours[5]);
+        break;
+      case 'M':
+      println("read M");
+        colours[6] = GetFromSerial();
+        println(colours[6]);
+        break;
+      case 'N':
+      println("read N");
+        colours[7] = GetFromSerial();
+        println(colours[7]);
+        break;
+    }
+  }
+}
+
+int GetFromSerial()
+{
+  while (port.available()==0) {
+   delay(10);
+  }
+  return port.read();
 }

@@ -12,7 +12,7 @@
 
 #define COLOUR_OUT 0
 
-#define NUM_SAMPLES 5
+#define NUM_SAMPLES 20
 
 #define RED 0
 #define BLUE 1
