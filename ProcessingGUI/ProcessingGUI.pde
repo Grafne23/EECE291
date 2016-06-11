@@ -9,12 +9,15 @@ int rVal, gVal, bVal, wVal;
 int colours[] = new int[8];
 int order[] = new int[6];
 PImage carImage;
-int carX = 205, carY = 205;
+int carX = 210, carY = 205;
 int visits = 0;
 int goal = order[visits];
 int done = 0;
 int returning = 0;
-
+String redCar = "carRed.png";
+String yellowCar = "carYellow.png";
+String blueCar = "carBlue.png";
+String greenCar = "carGreen.png";
 
 void setup() {
   size(500, 500);
@@ -48,8 +51,8 @@ void setup() {
   port = new Serial(this, Serial.list()[1], 9600);
   port.bufferUntil(' '); 
   carImage = new PImage();
-  carImage = loadImage("car.png");
-  carImage.resize(50, 50);
+  carImage = loadImage("cars_mini.png");
+  carImage.resize(45, 60);
 }
 
 void draw() {
@@ -85,7 +88,7 @@ void draw() {
     GetNextCarPos();
     image(carImage, carX, carY);
   } else {
-    image(carImage, 205, 205);
+    image(carImage, 210, 205);
   }
 }
 
@@ -281,18 +284,18 @@ void GetNextCarPos()
     returning = 1;
   }
   
-  if((returning == 1) && (carX < 207 && carX > 203) && (carY < 207 && carY > 203))
+  if((returning == 1) && (carX < 211 && carX > 208) && (carY < 207 && carY > 203))
   {
       visits++;
       returning = 0;
       carY = 205;
-      carX = 205;
+      carX = 210;
   }
   
   if(visits > 5) 
   {
     done = 1;
-    carX = 205;
+    carX = 210;
     carY = 205;
   }else
   {

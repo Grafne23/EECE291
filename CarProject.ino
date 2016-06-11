@@ -2,6 +2,7 @@
 #include "LineSensing.h"
 #include "ColourSensing.h"
 #include "DistanceSensing.h"
+#include "SerialComs.h"
 
 #include <Wire.h>
 
@@ -43,7 +44,11 @@ enum states{
   justDistance //This is used for Module 2 Requirement 4 only
 };
 
-states state = findOne;
+states state = justDistance;
+
+// Testing the colours and orders
+byte orderIn[6] = {1, 6, 4, 5, 3, 7};
+byte coloursIn[8] = {0, 1, 0, 1, 2, 3, 3, 2};
 
 void setup() {
   Serial.begin(9600);
@@ -196,6 +201,8 @@ void loop() {
       objectDistance = getDistance();
       Serial.print("object at distance: ");Serial.print(objectDistance);Serial.println(" cm");
       delay(500);
+      writeToEEPROM(orderIn, coloursIn);
+      SendData();
      // detectObjectColourAveraging();
      // delay(500);
     default:
