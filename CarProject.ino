@@ -50,8 +50,10 @@ enum states{
 states state = justDistance;
 
 // Testing the colours and orders
-byte orderIn[6] = {1, 6, 4, 5, 3, 7};
-byte coloursIn[8] = {0, 1, 0, 1, 2, 3, 3, 2};
+//byte orderIn[6] = {1, 6, 4, 5, 3, 7};
+//byte coloursIn[8] = {0, 1, 0, 1, 2, 3, 3, 2};
+byte orderIn[6] = {-1};
+byte coloursIn[8] = {3};
 
 void setup() {
   Serial.begin(9600);
@@ -94,6 +96,7 @@ void loop() {
           if(positions[currentPos] == 0) //If we haven't visited this one before
           {
             state = goToOne; //next state
+            orderIn[objectCount] = currentPos;
             objectCount++;
             seek_time = millis();
             setColour(NO_COLOUR);
@@ -155,6 +158,7 @@ void loop() {
       delay(500);
       detectObjectColourAveraging();
       detectedColour = detectObjectColour();
+      coloursIn[objectCount - 1] = detectedColour;
       delay(500);
       curr_time = millis();
       if (detectedColour == RED)
@@ -209,6 +213,8 @@ void loop() {
       {
         /* We've found three! */
         setColour(GREEN);
+        writeToEEPROM(orderIn, coloursIn);
+        SendData();
       }
       break;
     case justDistance:
