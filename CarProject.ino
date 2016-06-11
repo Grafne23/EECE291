@@ -2,6 +2,7 @@
 #include "LineSensing.h"
 #include "ColourSensing.h"
 #include "DistanceSensing.h"
+#include "WheelEncoders.h"
 
 #include <Wire.h>
 
@@ -29,6 +30,7 @@ unsigned long seek_time = 0;
 int positions[8] = {0};
 int currentPos = 0;
 int objectCount = 0;
+int detectedColour;
 
 int distance_readings = 0;
 long objectDistance;
@@ -37,6 +39,7 @@ enum states{
   findOne,
   goToOne,
   stopAndDetect,
+  attack,
   turn,
   goBack,
   halt,
@@ -146,18 +149,29 @@ void loop() {
       motorDriver.stop(LMOTOR);
       delay(500);
       detectObjectColourAveraging();
+      detectedColour = detectObjectColour();
       delay(500);
       curr_time = millis();
-      state = turn; //next state
+      if (detectedColour == RED)
+        state = attack;
+      else
+        state = turn; //next state
       break;
-    // ----------Turn around-------------------
+    //-----------Attack the red object------------
+    case attack:
+      motorDriver.swingArm();
+      delay(100);
+      state = turn;
+      curr_time = millis();
+      break;
+    // ----------Turn around----------------------
     case turn:
       motorDriver.turnAround();
       delay(100);
       state = goBack; //next state
       curr_time = millis();
       break;
-       // ---------- return to the center-------------------
+    // ---------- return to the center-------------------
     case goBack:
       readLineSensors(&rOn, &lOn);
       followLine(rOn, lOn, motorDriver);
