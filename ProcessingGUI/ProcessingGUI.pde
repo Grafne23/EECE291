@@ -14,15 +14,17 @@ byte index=0;
 int colours[] = new int[8];
 int order[] = new int[6];
 PImage carImage;
-int carX = 210, carY = 205;
+int carX = 190, carY = 195;
 int visits = 0;
 int goal = order[visits];
 int done = 1;
+int rotation = 0;
 int returning = 0;
-String redCar = "carRed.png";
-String yellowCar = "carYellow.png";
-String blueCar = "carBlue.png";
-String greenCar = "carGreen.png";
+String redCar = "carRed";
+String yellowCar = "carYellow";
+String blueCar = "carBlue";
+String greenCar = "carGreen";
+String suffix = ".png";
 
 void setup() {
   size(500, 500);
@@ -56,8 +58,8 @@ void setup() {
   port = new Serial(this, Serial.list()[1], 9600);
   port.bufferUntil(' '); 
   carImage = new PImage();
-  carImage = loadImage("carYellow.png");
-  carImage.resize(45, 60);
+  carImage = loadImage(yellowCar + str(rotation) + suffix);
+  carImage.resize(80, 80);
 }
 
 void draw() {
@@ -66,14 +68,14 @@ void draw() {
   fill(0, 102, 153, 204);
   text("Group 3 GUI Demo", 25, 25); 
   textSize(16);
-  
-  text(order[0], 250, 25);
-  text(order[1], 270, 25);
-  text(order[2], 290, 25);
-  text(order[3], 310, 25);
-  text(order[4], 330, 25);
-  text(order[5], 350, 25);
-  
+  /*
+  text(order[0], 255, 25);
+  text(order[1], 275, 25);
+  text(order[2], 295, 25);
+  text(order[3], 315, 25);
+  text(order[4], 335, 25);
+  text(order[5], 355, 25);
+  */
   strokeWeight(2);
   line(50, 60, 50, 400); //left
   line(60, 410, 400, 410); //bottom
@@ -94,7 +96,7 @@ void draw() {
     GetNextCarPos();
     image(carImage, carX, carY);
   } else {
-    image(carImage, 210, 205);
+    image(carImage, 190, 195);
   }
  // println("loop");
 }
@@ -120,10 +122,10 @@ void goButton()
   rect(250, 450, 50, 25, 5);
   fill(255);
   text("Go", 265, 468);
-  if(mousePressed==true && mouseX>250 && mouseX<275 && mouseY>450 && mouseY<475)
+  if(mousePressed==true && mouseX>250 && mouseX<300 && mouseY>450 && mouseY<475)
   {
     println("PRESSED");
-    println(order[0]);
+    //println(order[0]);
     if(order[0] != -1) done = 0;
   }
 }
@@ -187,8 +189,10 @@ void GetNextCarPos()
       if(returning == 1)
       {
         carY += 1;
+        rotation = 180;
       } else
       {
+        rotation = 0;
         carY -= 1;
       }
       break;
@@ -197,8 +201,10 @@ void GetNextCarPos()
       {
         carY += 1;
         carX -= 1;
+        rotation = 225;
       } else
       {
+        rotation = 45;
         carY -= 1;
         carX += 1;
       }
@@ -207,18 +213,22 @@ void GetNextCarPos()
       if(returning == 1)
       {
         carX -= 1;
+        rotation = 270;
       } else
       {
         carX += 1;
+        rotation = 90;
       }
       break;
     case 3:
       if(returning == 1)
       {
+        rotation = 315;
         carX -= 1;
         carY -= 1;
       } else
       {
+        rotation = 135;
         carX += 1;
         carY += 1;
       }
@@ -227,18 +237,22 @@ void GetNextCarPos()
       if(returning == 1)
       {
         carY -= 1;
+        rotation = 0;
       } else
       {
+        rotation = 180;
         carY += 1;
       }
       break;
     case 5:
       if(returning == 1)
       {
+        rotation = 45;
         carY -= 1;
         carX += 1;
       } else
       {
+        rotation = 225;
         carY += 1;
         carX -= 1;
       }
@@ -246,19 +260,23 @@ void GetNextCarPos()
    case 6:
        if(returning == 1)
       {
+        rotation = 90;
         carX += 1;
       } else
       {
+        rotation = 270;
         carX -= 1;
       }
       break;
    case 7:
       if(returning == 1)
       {
+        rotation = 135;
         carY += 1;
         carX += 1;
       } else
       {
+        rotation = 315;
         carY -= 1;
         carX -= 1;
       }
@@ -266,40 +284,48 @@ void GetNextCarPos()
     default:
       break;
   }
-  
-  if((carY < 60 || carX < 60) || (carY > 340 || carX > 340) && (returning == 0))
+      
+  if((carY < 50 || carX < 60) || (carY > 325 || carX > 330) && (returning == 0))
+  {
+    returning = 1;
+  }
+    
+  if(returning == 0)
+  {
+    carImage = loadImage(yellowCar + str(rotation) + suffix);
+    carImage.resize(80, 80);
+  } else
   {
     switch(colours[goal])
     {
       case RED: 
-        carImage = loadImage(redCar);
+        carImage = loadImage(redCar + str(rotation) + suffix);
         break;
       case GREEN:
-        carImage = loadImage(greenCar);
+        carImage = loadImage(greenCar + str(rotation) + suffix);
         break;
       case BLUE:
-        carImage = loadImage(blueCar);
+        carImage = loadImage(blueCar + str(rotation) + suffix);
         break;
       default:
         break;
     }
-    carImage.resize(45, 60);
-    returning = 1;
+    carImage.resize(80, 80);
   }
   
-  if((returning == 1) && (carX < 211 && carX > 208) && (carY < 207 && carY > 203))
+  if((returning == 1) && (carX < 192 && carX > 187) && (carY < 198 && carY > 192))
   {
       visits++;
       returning = 0;
-      carY = 205;
-      carX = 210;
+      carY = 195;
+      carX = 190;
   }
   
   if(visits > 5) 
   {
     done = 1;
-    carX = 210;
-    carY = 205;
+    carX = 190;
+    carY = 195;
   }else
   {
     goal = order[visits];

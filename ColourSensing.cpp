@@ -29,7 +29,7 @@ int getAverageReadings(){
 }
 
 // Detect the object colour ten times and set the LED based on the most common value ------
-void detectObjectColourAveraging(){
+int detectObjectColourAveraging(){
   int index;
   int red = 0, blue = 0, green = 0;
   int colour;
@@ -61,6 +61,7 @@ void detectObjectColourAveraging(){
   
   //Set the LED
   setColour(colour);
+  return colour;
 }
 
 // Detect the object colour and return it ------

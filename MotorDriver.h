@@ -4,7 +4,6 @@
 #define __MOTORDRIVER_H__
 
 #include <Arduino.h>
-#include <Servo.h>
 /******Pins definitions*************/
 #define MOTORSHIELD_IN1	8
 #define MOTORSHIELD_IN2	11

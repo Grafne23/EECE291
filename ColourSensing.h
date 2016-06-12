@@ -22,6 +22,6 @@
 int averageValues (int array[]);
 int getAverageReadings();
 int detectObjectColour();
-void detectObjectColourAveraging();
+int detectObjectColourAveraging();
 void setColour(int colour);
 

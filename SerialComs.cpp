@@ -1,7 +1,7 @@
 #include "SerialComs.h"
 
 byte order[6] = {0};
-byte colours[8] = {0};
+byte colours[8] = {3};
 
 byte orderAdresses[6] = {0, 1, 2, 3, 4, 5};
 byte colourAddresses[8] = {6, 7, 8, 9, 10, 11, 12, 13};

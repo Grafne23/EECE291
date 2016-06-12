@@ -5,19 +5,19 @@
 #include "SerialComs.h"
 #include "WheelEncoders.h"
 
-//#include <Servo.h>
+#include <Servo.h>
 #include <Wire.h>
 
 #define STRAIGHT1_DONE 10000
 #define DISTANCE_ATTEMPTS 10
 #define STOP_DISTANCE 2
-#define MAX_OBJECT_DISTANCE 80
+#define MAX_OBJECT_DISTANCE 85
 #define RETURN_FACTOR 0.90
 #define ARM_REST 150
 #define SERVO_PIN 14
 #define MAX_OBJECTS 6
 
-//Servo servoArm;
+Servo servoArm;
 MotorDriver motorDriver;
 
 int rOn = 0;
@@ -33,7 +33,7 @@ unsigned long seek_time = 0;
     /  |  \
   5    4    3
 */
-int positions[8] = {0};
+int positions[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 int currentPos = 0;
 int objectCount = 0;
 int detectedColour;
@@ -57,8 +57,8 @@ states state = justDistance;
 // Testing the colours and orders
 //byte orderIn[6] = {1, 6, 4, 5, 3, 7};
 //byte coloursIn[8] = {0, 1, 0, 1, 2, 3, 3, 2};
-byte orderIn[6] = {-1};
-byte coloursIn[8] = {3};
+byte orderIn[6] = {-1, -1, -1, -1, -1, -1};
+byte coloursIn[8] = {3, 3, 3, 3, 3, 3, 3, 3};
 
 void setup() {
   Serial.begin(9600);
@@ -164,8 +164,7 @@ void loop() {
       motorDriver.stop(RMOTOR);
       motorDriver.stop(LMOTOR);
       delay(500);
-      detectObjectColourAveraging();
-      detectedColour = detectObjectColour();
+      detectedColour = detectObjectColourAveraging();
       coloursIn[currentPos] = detectedColour;
       delay(500);
       curr_time = millis();
