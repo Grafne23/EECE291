@@ -20,10 +20,10 @@ int goal = order[visits];
 int done = 1;
 int rotation = 0;
 int returning = 0;
-String redCar = "carRed";
-String yellowCar = "carYellow";
-String blueCar = "carBlue";
-String greenCar = "carGreen";
+String redCar = "Sprites/carRed";
+String yellowCar = "Sprites/carYellow";
+String blueCar = "Sprites/carBlue";
+String greenCar = "Sprites/carGreen";
 String suffix = ".png";
 
 void setup() {
@@ -91,6 +91,7 @@ void draw() {
   DrawCircles();
   goButton();
   dataButton();
+
   if(done == 0)
   {
     GetNextCarPos();
