@@ -5,7 +5,6 @@
 #include "SerialComs.h"
 #include "WheelEncoders.h"
 
-#include <Servo.h>
 #include <Wire.h>
 
 #define STRAIGHT1_DONE 10000
@@ -17,7 +16,6 @@
 #define SERVO_PIN 14
 #define MAX_OBJECTS 6
 
-Servo servoArm;
 MotorDriver motorDriver;
 
 int rOn = 0;
@@ -83,8 +81,7 @@ void setup() {
   pinMode(C_LED_PIN2, OUTPUT);
   pinMode(C_LED_PIN3, OUTPUT);
 
-  //servoArm.attach(SERVO_PIN);
-  //servoArm.write(ARM_REST);
+  pinMode(SERVO_PIN, OUTPUT);
 }
 
 void loop() {
@@ -225,9 +222,11 @@ void loop() {
       }
       break;
     case justDistance:
+    delay(500);
+      SwingArm();
       objectDistance = getDistance();
       Serial.print("object at distance: ");Serial.print(objectDistance);Serial.println(" cm");
-      delay(500);
+      delay(5000);
       SendData();
      // detectObjectColourAveraging();
      // delay(500);
@@ -237,20 +236,40 @@ void loop() {
   delay(50);
 }
 
-/*
+/* For Arm Servo */
 // Swing the robot Arm ------------------------
-void swingArm()
-{
-  //swing to 90 degrees
-  servoArm.write(90); 
-  delay(100);
-  //now slowly swing so as to not knock over the object
-  for (int pos = 90; pos >= 10; pos -= 10) { 
-    servoArm.write(pos);             
-    delay(100);                       
+void SwingArm()
+{   
+  int lenMicroSecondsOfPeriod = 20 * 1000; // 25 milliseconds (ms)
+  int lenMicroSecondsOfPulse = 1 * 1000; // 1 ms is 0 degrees
+  int firstPos = 0.5 * 1000; //first position
+  int endPos = 3.0 * 1000;//first position
+  int current = 0;
+  int servoIncrement = 0.01 * 1000;
+  
+  /* Servo works by sending a 25 ms pulse.  
+     0.5 ms at the start of the pulse will turn the servo to the 0 degree position
+     2.0 ms at the start of the pulse will turn the servo to the 90 degree position 
+     3.0 ms at the start of the pulse will turn the servo to the 180 degree position 
+  */
+  for(current = endPos; current > firstPos; current -= servoIncrement){    
+    //Turn voltage high to start the period and pulse
+    digitalWrite(SERVO_PIN, HIGH);
+    // Delay for the length of the pulse
+    delayMicroseconds(current);
+    // Turn the voltage low for the remainder of the pulse
+    digitalWrite(SERVO_PIN, LOW);
+    // Delay for the remainder of the period
+    delayMicroseconds(lenMicroSecondsOfPeriod - current); 
   }
-  delay(500);
-  //return to resting position
-  servoArm.write(ARM_REST);
+  for(current = firstPos; current < endPos; current += servoIncrement){
+    //Turn voltage high to start the period and pulse
+    digitalWrite(SERVO_PIN, HIGH);
+    // Delay for the length of the pulse
+    delayMicroseconds(current);
+    // Turn the voltage low for the remainder of the pulse
+    digitalWrite(SERVO_PIN, LOW);
+    // Delay for the remainder of the period
+    delayMicroseconds(lenMicroSecondsOfPeriod - current); 
+  }
 }
-*/
