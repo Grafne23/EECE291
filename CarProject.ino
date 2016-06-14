@@ -53,10 +53,10 @@ enum states{
 states state = justDistance;
 
 // Testing the colours and orders
-//byte orderIn[6] = {1, 6, 4, 5, 3, 7};
-//byte coloursIn[8] = {0, 1, 0, 1, 2, 3, 3, 2};
-byte orderIn[6] = {-1, -1, -1, -1, -1, -1};
-byte coloursIn[8] = {3, 3, 3, 3, 3, 3, 3, 3};
+byte orderIn[6] = {1, 6, 4, 5, 3, 7};
+byte coloursIn[8] = {0, 1, 0, 1, 2, 3, 3, 2};
+//byte orderIn[6] = {-1, -1, -1, -1, -1, -1};
+//byte coloursIn[8] = {3, 3, 3, 3, 3, 3, 3, 3};
 
 void setup() {
   Serial.begin(9600);
@@ -223,11 +223,12 @@ void loop() {
       break;
     case justDistance:
     delay(500);
-      SwingArm();
-      objectDistance = getDistance();
-      Serial.print("object at distance: ");Serial.print(objectDistance);Serial.println(" cm");
-      delay(5000);
-      SendData();
+      //SwingArm();
+      //objectDistance = getDistance();
+      //Serial.print("object at distance: ");Serial.print(objectDistance);Serial.println(" cm");
+      //delay(5000);
+      StartBluetooth();
+      SendBTData();
      // detectObjectColourAveraging();
      // delay(500);
     default:
