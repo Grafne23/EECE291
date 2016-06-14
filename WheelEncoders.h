@@ -14,7 +14,7 @@
 #define RIGHT 0
 #define LEFT  1
   
-float getTotalDistance();
+//float getTotalDistance();
 int blackOrWhite(int analogPin);
 int countTiles(int analogPin);
-void goForward(MotorDriver motorDriver);
+void backToCenter(int howFar, MotorDriver motorDriver);

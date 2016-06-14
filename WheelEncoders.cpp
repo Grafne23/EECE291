@@ -1,9 +1,7 @@
 #include "WheelEncoders.h"
 
-int countWhite;
-int countBlack; 
 float totalDistance;
-int numberOfTiles;
+
 
 /*
  * Purpose: Compares the number of tiles of both wheels, if they are unequal,
@@ -13,21 +11,31 @@ int numberOfTiles;
  * Output:  tells which wheel to turn.
  * Obs:     The motor control is done in MotorDriver.cpp
  */
-void goForward(MotorDriver motorDriver){
-  int tilesRight = countTiles(RIGHT_SENSOR);
-  int tilesLeft = countTiles(LEFT_SENSOR);
+void backToCenter(int howFar, MotorDriver motorDriver){
+  int tilesRight = howFar;
+  int tilesLeft = howFar;
 
-  while (tilesRight != tilesLeft){
+  while (tilesRight < 0 && tilesLeft < 0){    // While it has not gone back all the tiles  
     if (tilesRight > tilesLeft){
       motorDriver.speed(LMOTOR, 100);
+      motorDriver.speed(RMOTOR, 85);
+      tilesRight=- countTiles(LEFT_SENSOR);   // Decreasing the tiles until it reaches 0. So it went back
+      tilesLeft=- countTiles(RIGHT_SENSOR);   // the same distance it went forward.
+    }
+    else if (tilesLeft > tilesRight){
+      motorDriver.speed(LMOTOR, 85);
+      motorDriver.speed(RMOTOR, 100);
+      tilesRight=- countTiles(LEFT_SENSOR);
+      tilesLeft=- countTiles(RIGHT_SENSOR);
     }
     else{
-      motorDriver.speed(RMOTOR, 100);
+      motorDriver.speed(RMOTOR, 100);  
+      motorDriver.speed(LMOTOR, 100);
+      tilesRight=- countTiles(LEFT_SENSOR);
+      tilesLeft=- countTiles(RIGHT_SENSOR);
+      delay(50);
     }
   }
-  motorDriver.speed(RMOTOR, 100);  
-  motorDriver.speed(LMOTOR, 100);
-  delay(50);
 }
 
 /*
@@ -39,6 +47,7 @@ void goForward(MotorDriver motorDriver){
 int countTiles(int analogPin) {
   int currentState = blackOrWhite(analogPin);
   int previousState;
+  int numberOfTiles;
   
   if (currentState == BLACK && previousState == WHITE){
     numberOfTiles++;
@@ -69,15 +78,16 @@ int blackOrWhite(int analogPin){
 /*
  * Purpose:  calculaes and displays the distance traveled by the robot.
  * Return:   a float that is the total distance.
- */
+ 
 float getTotalDistance(){
    /*
    * Formula for distance per "tile"
    * 2piR/numberOfTiles
-   */
+   
   int tiles = countBlack+countWhite;
   totalDistance = ((6.28 * WHEEL_RADIUS * tiles)/ TOTAL_TILES);
  
   return totalDistance;
 }
+*/
 // End of program
