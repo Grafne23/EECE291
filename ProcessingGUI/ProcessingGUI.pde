@@ -1,4 +1,5 @@
 import processing.serial.*;
+import bluetoothDesktop.*;
 
 final int RED = 0;
 final int BLUE = 1;
@@ -35,8 +36,8 @@ void setup() {
   }
   println("Available serial ports:");
   println(Serial.list());
-  order[0] = -1;
-  /*
+  //order[0] = -1;
+  
   order[0] = 1;
   order[1] = 6;
   order[2] = 4;
@@ -53,7 +54,7 @@ void setup() {
   colours[5] = BLUE;
   colours[6] = BLUE;
   colours[7] = GREEN;
-  */
+  
   // check on the output monitor wich port is available on your machine
   port = new Serial(this, Serial.list()[1], 9600);
   port.bufferUntil(' '); 

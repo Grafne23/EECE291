@@ -39,6 +39,8 @@ int detectedColour;
 int distance_readings = 0;
 long objectDistance;
 
+int tilesToObject;
+
 enum states{
   findOne,
   goToOne,
@@ -50,7 +52,7 @@ enum states{
   justDistance //This is used for Module 2 Requirement 4 only
 };
 
-states state = justDistance;
+states state = findOne;
 
 // Testing the colours and orders
 //byte orderIn[6] = {1, 6, 4, 5, 3, 7};
@@ -74,14 +76,19 @@ void setup() {
   pinMode(COLOUR_PIN_S3, OUTPUT);
   pinMode(COLOUR_OUT, INPUT);
   
-  // Setting frequency-scaling to 100%
+  /* Setting frequency-scaling to 100% */
   digitalWrite(COLOUR_PIN_S0_S1,HIGH);
   
   pinMode(C_LED_PIN1, OUTPUT);
   pinMode(C_LED_PIN2, OUTPUT);
   pinMode(C_LED_PIN3, OUTPUT);
 
+  /*Servo Arm */
   pinMode(SERVO_PIN, OUTPUT);
+
+  /* Wheel Encoders */
+  pinMode(RIGHT_SENSOR, INPUT);
+  pinMode(LEFT_SENSOR, INPUT);
 }
 
 void loop() {
@@ -100,6 +107,7 @@ void loop() {
           Serial.print("object at distance: ");Serial.println(objectDistance);
           if(positions[currentPos] == 0) //If we haven't visited this one before
           {
+            tilesToObject = cmToTiles(objectDistance); // converts the distance to tiles (used to go back)
             state = goToOne; //next state
             orderIn[objectCount] = currentPos;
             objectCount++;
@@ -128,12 +136,13 @@ void loop() {
       break;
     // ----------Go Towards the object until the distance is < STOP_DISTANCE cm -------------------
     case goToOne:
+        tilesToObject = 0;
         while(objectDistance > STOP_DISTANCE)
         {
           //read line sensors & follow line
           readLineSensors(&rOn, &lOn);
           followLine(rOn, lOn, motorDriver);
-
+          
           long last_distance = objectDistance;
           objectDistance = getDistance();
           delay(10);
@@ -172,7 +181,7 @@ void loop() {
       break;
     //-----------Attack the red object------------
     case attack:
-     // swingArm();
+      SwingArm();
       delay(100);
       state = turn;
       curr_time = millis();
@@ -186,14 +195,16 @@ void loop() {
       break;
     // ---------- return to the center-------------------
     case goBack:
-      readLineSensors(&rOn, &lOn);
+      /*readLineSensors(&rOn, &lOn);
       followLine(rOn, lOn, motorDriver);
-      /* Return to the middle base on a factor of the time it took us to get out there */
+      /* Return to the middle base on a factor of the time it took us to get out there 
       if(millis() - curr_time > out_time * RETURN_FACTOR)
       {
         curr_time = millis();
         state = halt; //next state
       }
+      */
+      backToCenter(tilesToObject, motorDriver); 
       break;
     case halt:
       motorDriver.stop(RMOTOR);
@@ -215,7 +226,7 @@ void loop() {
         state = findOne; //look for the next one
       } else
       {
-        /* We've found three! */
+        /* We've found all! */
         setColour(GREEN);
         writeToEEPROM(orderIn, coloursIn);
         SendData();
@@ -242,10 +253,10 @@ void SwingArm()
 {   
   int lenMicroSecondsOfPeriod = 20 * 1000; // 25 milliseconds (ms)
   int lenMicroSecondsOfPulse = 1 * 1000; // 1 ms is 0 degrees
-  int firstPos = 0.5 * 1000; //first position
-  int endPos = 3.0 * 1000;//first position
+  int firstPos = 0.65 * 1000; //first position
+  int endPos = 1.7 * 1000;//first position
   int current = 0;
-  int servoIncrement = 0.01 * 1000;
+  int servoIncrement = 0.01 * 800;
   
   /* Servo works by sending a 25 ms pulse.  
      0.5 ms at the start of the pulse will turn the servo to the 0 degree position

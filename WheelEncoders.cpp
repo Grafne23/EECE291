@@ -1,39 +1,42 @@
 #include "WheelEncoders.h"
 
-float totalDistance;
-
+int tilesRight;
+int tilesLeft;
 
 /*
  * Purpose: Compares the number of tiles of both wheels, if they are unequal,
  *          return the number 1 (RIGHT) or 0 (LEFT) of the motor that needs 
  *          to spin more to follow a straight line. 
- * Input:   NONE.
+ * Input:   tiles to the object, motorDriver.
  * Output:  tells which wheel to turn.
- * Obs:     The motor control is done in MotorDriver.cpp
  */
 void backToCenter(int howFar, MotorDriver motorDriver){
-  int tilesRight = howFar;
-  int tilesLeft = howFar;
+  tilesRight = howFar;
+  tilesLeft = howFar;
+  countTiles(RIGHT_SENSOR, tilesRight);
+  countTiles(LEFT_SENSOR, tilesLeft);
 
-  while (tilesRight < 0 && tilesLeft < 0){    // While it has not gone back all the tiles  
-    if (tilesRight > tilesLeft){
-      motorDriver.speed(LMOTOR, 100);
+  while (tilesRight < howFar && tilesLeft < howFar){    // While it has not gone back all the tiles  
+    if ((tilesRight - tilesLeft) > TILES_DIFFERENCE){   // If the right wheel spins faster 
+      motorDriver.speed(LMOTOR, 100);                   // Move left motor more than the right
       motorDriver.speed(RMOTOR, 85);
-      tilesRight=- countTiles(LEFT_SENSOR);   // Decreasing the tiles until it reaches 0. So it went back
-      tilesLeft=- countTiles(RIGHT_SENSOR);   // the same distance it went forward.
+      countTiles(RIGHT_SENSOR, tilesRight);
+      countTiles(LEFT_SENSOR, tilesLeft);
+
     }
-    else if (tilesLeft > tilesRight){
+    else if ((tilesLeft - tilesRight) > TILES_DIFFERENCE){
       motorDriver.speed(LMOTOR, 85);
       motorDriver.speed(RMOTOR, 100);
-      tilesRight=- countTiles(LEFT_SENSOR);
-      tilesLeft=- countTiles(RIGHT_SENSOR);
+      countTiles(RIGHT_SENSOR, tilesRight);
+      countTiles(LEFT_SENSOR, tilesLeft);
+
     }
     else{
       motorDriver.speed(RMOTOR, 100);  
       motorDriver.speed(LMOTOR, 100);
-      tilesRight=- countTiles(LEFT_SENSOR);
-      tilesLeft=- countTiles(RIGHT_SENSOR);
-      delay(50);
+      countTiles(RIGHT_SENSOR, tilesRight);
+      countTiles(LEFT_SENSOR, tilesLeft);
+
     }
   }
 }
@@ -41,24 +44,23 @@ void backToCenter(int howFar, MotorDriver motorDriver){
 /*
  * Purpose: counts the number of tiles read by sensor.
  * 
- * Inputs:  sensor to read from.
+ * Inputs:  sensor to read from and global variable to be incremented.
  * Oututs:  NONE.
  */
-int countTiles(int analogPin) {
+int countTiles(int analogPin, int tilesVariable) {
   int currentState = blackOrWhite(analogPin);
   int previousState;
-  int numberOfTiles;
   
   if (currentState == BLACK && previousState == WHITE){
-    numberOfTiles++;
+    tilesVariable++;
     previousState = currentState;
   }
   else if (currentState == WHITE && previousState == BLACK){
-    numberOfTiles++;
-    previousState == currentState;
+    tilesVariable++;
+    previousState = currentState;
   }
 
-  return numberOfTiles;
+  return tilesVariable;
 }
 
 /*
@@ -76,18 +78,18 @@ int blackOrWhite(int analogPin){
 }
 
 /*
- * Purpose:  calculaes and displays the distance traveled by the robot.
- * Return:   a float that is the total distance.
- 
-float getTotalDistance(){
-   /*
-   * Formula for distance per "tile"
-   * 2piR/numberOfTiles
-   
-  int tiles = countBlack+countWhite;
-  totalDistance = ((6.28 * WHEEL_RADIUS * tiles)/ TOTAL_TILES);
- 
-  return totalDistance;
+ * Purpose: reset global variable used to count tiles. 
+ */
+
+void resetTiles(int globalTiles){
+  globalTiles = 0;
 }
-*/
+
+int cmToTiles(int distance){
+  float conversion = distance/ONE_TILE;
+  conversion += 0.5;
+  int tilesToObject = int(conversion);
+  return tilesToObject;
+}
+
 // End of program
