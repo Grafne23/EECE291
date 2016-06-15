@@ -18,6 +18,8 @@
 
 MotorDriver motorDriver;
 
+int j = 0;
+
 int rOn = 0;
 int lOn = 0;
 unsigned long curr_time = 0;
@@ -42,6 +44,7 @@ long objectDistance;
 int tilesToObject;
 
 enum states{
+  waitForGo,
   findOne,
   goToOne,
   stopAndDetect,
@@ -52,13 +55,13 @@ enum states{
   justDistance //This is used for Module 2 Requirement 4 only
 };
 
-states state = findOne;
+states state = waitForGo;
 
 // Testing the colours and orders
-//byte orderIn[6] = {1, 6, 4, 5, 3, 7};
-//byte coloursIn[8] = {0, 1, 0, 1, 2, 3, 3, 2};
-byte orderIn[6] = {-1, -1, -1, -1, -1, -1};
-byte coloursIn[8] = {3, 3, 3, 3, 3, 3, 3, 3};
+byte orderIn[6] = {1, 6, 4, 5, 3, 7};
+byte coloursIn[8] = {0, 1, 0, 1, 2, 3, 3, 2};
+//byte orderIn[6] = {-1, -1, -1, -1, -1, -1};
+//byte coloursIn[8] = {3, 3, 3, 3, 3, 3, 3, 3};
 
 void setup() {
   Serial.begin(9600);
@@ -85,16 +88,26 @@ void setup() {
 
   /*Servo Arm */
   pinMode(SERVO_PIN, OUTPUT);
+<<<<<<< HEAD
 
   /* Wheel Encoders */
   pinMode(RIGHT_SENSOR, INPUT);
   pinMode(LEFT_SENSOR, INPUT);
+
+  setColour(NO_COLOUR);
+
+  StartBluetooth();
+  delay(3000); //Wait for Bluetooth to reconnect to the laptop
 }
 
 void loop() {
   // ------------- State Machine ----------------------
   switch(state)
-  { 
+  {
+    // Wait for user to press start on the Bluetooth GUI
+    case waitForGo:
+      WaitForBTGo();
+      state = findOne;
     // ----------Find an object-------------------
     case findOne:
       if(distance_readings < DISTANCE_ATTEMPTS) //Take multiple readings to be sure
@@ -112,9 +125,10 @@ void loop() {
             orderIn[objectCount] = currentPos;
             objectCount++;
             seek_time = millis();
-            setColour(NO_COLOUR);
             positions[currentPos] = 1;
             lookForLine(motorDriver);
+            SendBTGoing(currentPos);
+            setColour(NO_COLOUR);
           } else
           {
             distance_readings++;
@@ -161,6 +175,7 @@ void loop() {
         
         //we've reached the stopping distance
         state = stopAndDetect; //next state
+        SendBTStopped(currentPos);
         /* Keep track of how long it took us to get there so we can return */
         out_time = millis() - seek_time; 
       break;
@@ -172,6 +187,7 @@ void loop() {
       delay(500);
       detectedColour = detectObjectColourAveraging();
       coloursIn[currentPos] = detectedColour;
+      SendBTColour(currentPos, detectedColour);
       delay(500);
       curr_time = millis();
       if (detectedColour == RED)
@@ -188,6 +204,7 @@ void loop() {
       break;
     // ----------Turn around----------------------
     case turn:
+      SendBTReturning(currentPos);
       motorDriver.turnAround();
       delay(100);
       state = goBack; //next state
@@ -234,11 +251,21 @@ void loop() {
       break;
     case justDistance:
     delay(500);
-      SwingArm();
-      objectDistance = getDistance();
-      Serial.print("object at distance: ");Serial.print(objectDistance);Serial.println(" cm");
+      //SwingArm();
+      //objectDistance = getDistance();
+      //Serial.print("object at distance: ");Serial.print(objectDistance);Serial.println(" cm");
+      //delay(5000);
+      StartBluetooth();
+      //SendBTData();
+      delay(10000);
+      SendBTGoing(j);
       delay(5000);
-      SendData();
+      SendBTStopped(j);
+      delay(500);
+      SendBTColour(j, 0);
+      delay(1000);
+      SendBTReturning(j++);
+      delay(10000);
      // detectObjectColourAveraging();
      // delay(500);
     default:

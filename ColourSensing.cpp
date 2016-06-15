@@ -84,20 +84,18 @@ int detectObjectColour(){
   digitalWrite(COLOUR_PIN_S3,HIGH);
   blueReading = getAverageReadings();
 
-  if(redReading <= greenReading && redReading <= blueReading && redReading <= 10)
+  int diffBG = blueReading - greenReading;
+  if(redReading <= greenReading && redReading <= blueReading && redReading <= 70)
   {
     return RED;
-  }else if(redReading <= greenReading && blueReading <= greenReading -1)
+  }else if(redReading >= 60 && diffBG <= 20)
   {
     return BLUE;
-  }else if(redReading >= 11 && greenReading >= 11 && blueReading > 11) 
+  }else
   { 
     return GREEN;
-  } else
-  {
-    Serial.println("invlid - cases need work");
   }
-  return RED;
+  //return RED;
 }
 
 // Set the colour of the tri-colour LED ------

@@ -1,5 +1,10 @@
 #include "SerialComs.h"
 
+int bluetoothTx = 16;  // TX-O pin of bluetooth mate, Arduino D2
+int bluetoothRx = 15;  // RX-I pin of bluetooth mate, Arduino D3
+
+SoftwareSerial bluetooth(bluetoothTx, bluetoothRx);
+
 byte order[6] = {0};
 byte colours[8] = {3};
 
@@ -39,6 +44,66 @@ void readFromEEPROM()
     colours[i - 6] = EEPROM.read(colourAddresses[i - 6]);
   }
 }
+
+void StartBluetooth()
+{
+  bluetooth.begin(115200);  // The Bluetooth Mate defaults to 115200bps
+  bluetooth.print("$$$");  // Enter command mode
+  delay(100);  // Short delay, wait for the Mate to send back CMD
+  bluetooth.println("U,9600,N");  // Temporarily Change the baudrate to 9600, no parity
+  // 115200 can be too fast at times for NewSoftSerial to relay the data reliably
+  bluetooth.begin(9600);  // Start bluetooth serial at 9600
+}
+
+void SendBTGoing(int pos)
+{     
+  if(bluetooth.available())
+  {
+    bluetooth.print('G');
+    bluetooth.print(pos);
+    bluetooth.print('E');
+  }
+}
+void SendBTStopped(int pos)
+{     
+  if(bluetooth.available())
+  {
+    bluetooth.print('S');
+    bluetooth.print(pos);
+    bluetooth.print('E');
+  }
+}
+void SendBTColour(int pos, int colour)
+{     
+  if(bluetooth.available())
+  {
+    bluetooth.print('C');
+    bluetooth.print(pos);
+    bluetooth.print(colour);
+    bluetooth.print('E');
+  }
+}
+void SendBTReturning(int pos)
+{
+  if(bluetooth.available())
+  {
+    bluetooth.print('R');
+    bluetooth.print(pos);
+    bluetooth.print('E');
+  }
+}
+
+void WaitForBTGo()
+{
+  while(true)
+  {
+    if(bluetooth.read() == 'B')
+    {
+      break;
+    }
+  }
+}
+
 
 //Send all the data to the serial Port
 void SendData()
