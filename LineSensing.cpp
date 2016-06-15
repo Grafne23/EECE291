@@ -114,13 +114,15 @@ void lookForLine(MotorDriver motorDriver)
   delay(500);
   
   do {
-   if(sweep)
+   if(sweep == 1)
    {
-      motorDriver.speed(RMOTOR, -40);
-      motorDriver.speed(LMOTOR, 40);
+      motorDriver.speed(RMOTOR, -90);
+      motorDriver.speed(LMOTOR, 90);
+      sweep = 0;
    } else {
-      motorDriver.speed(RMOTOR, 40);
-      motorDriver.speed(LMOTOR, -40);
+      motorDriver.speed(RMOTOR, 90);
+      motorDriver.speed(LMOTOR, -90);
+      sweep = 1;
    }
    delay(300);
    readLineSensor(RSENSOR, &rOn, &lOn);
