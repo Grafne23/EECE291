@@ -1,7 +1,7 @@
 #include "SerialComs.h"
 
-int bluetoothTx = 2;  // TX-O pin of bluetooth mate, Arduino D2
-int bluetoothRx = 3;  // RX-I pin of bluetooth mate, Arduino D3
+int bluetoothTx = 16;  // TX-O pin of bluetooth mate, Arduino D2
+int bluetoothRx = 15;  // RX-I pin of bluetooth mate, Arduino D3
 
 SoftwareSerial bluetooth(bluetoothTx, bluetoothRx);
 
@@ -93,80 +93,17 @@ void SendBTReturning(int pos)
   }
 }
 
-void SendBTData()
-{      
-  Serial.println("reading");
-  readFromEEPROM();
-  byte orderIn2[6] = {1, 6, 4, 5, 3, 7};
-  byte coloursIn2[8] = {0, 1, 0, 1, 2, 3, 3, 2};
-  if(bluetooth.available())
+void WaitForBTGo()
+{
+  while(true)
   {
-    switch(bluetooth.read())
+    if(bluetooth.read() == 'B')
     {
-      case 'Q':
-    //  Serial.println("Read a Q!");
-      delay(10);
-      bluetooth.print(orderIn2[0]);
-      bluetooth.print(orderIn2[1]);
-      bluetooth.print(orderIn2[2]);
-      bluetooth.print(orderIn2[3]);
-      bluetooth.print(orderIn2[4]);
-      bluetooth.print(orderIn2[5]);
-      bluetooth.print(coloursIn2[0]);
-      bluetooth.print(coloursIn2[1]);
-      bluetooth.print(coloursIn2[2]);
-      bluetooth.print(coloursIn2[3]);
-      bluetooth.print(coloursIn2[4]);
-      bluetooth.print(coloursIn2[5]);
-      bluetooth.print(coloursIn2[6]);
-      bluetooth.print(coloursIn2[7]);
+      break;
     }
   }
 }
 
-//Send all the data to the serial Port
-void SendBTDataOld()
-{      
-  Serial.println("reading");
-  readFromEEPROM();
-  if(bluetooth.available())
-  {
-    switch(bluetooth.read())
-    {
-      case 'Q':
-    //  Serial.println("Read a Q!");
-      delay(10);
-      bluetooth.println('A');
-      bluetooth.println(order[0]);
-      bluetooth.println('B');
-      bluetooth.println(order[1]);
-      bluetooth.println('C');
-      bluetooth.println(order[2]);
-      bluetooth.println('D');
-      bluetooth.println(order[3]);
-      bluetooth.println('E');
-      bluetooth.println(order[4]);
-      bluetooth.println('F');
-      bluetooth.println(order[5]);
-      bluetooth.println('G');
-      bluetooth.println(colours[0]);
-      bluetooth.println('H');
-      bluetooth.println(colours[1]);
-      bluetooth.println('I');
-      bluetooth.println(colours[2]);
-      bluetooth.println('J');
-      bluetooth.println(colours[3]);
-      bluetooth.println('K');
-      bluetooth.println(colours[4]);
-      bluetooth.println('L');
-      bluetooth.println(colours[5]);
-      bluetooth.println('M');
-      bluetooth.println(colours[6]);
-      bluetooth.println('N');
-      bluetooth.println(colours[7]);
-    }
-  }
-}
 
 //Send all the data to the serial Port
 void SendData()

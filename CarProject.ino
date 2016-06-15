@@ -42,6 +42,7 @@ int distance_readings = 0;
 long objectDistance;
 
 enum states{
+  waitForGo,
   findOne,
   goToOne,
   stopAndDetect,
@@ -52,7 +53,7 @@ enum states{
   justDistance //This is used for Module 2 Requirement 4 only
 };
 
-states state = justDistance;
+states state = waitForGo;
 
 // Testing the colours and orders
 byte orderIn[6] = {1, 6, 4, 5, 3, 7};
@@ -84,12 +85,20 @@ void setup() {
   pinMode(C_LED_PIN3, OUTPUT);
 
   pinMode(SERVO_PIN, OUTPUT);
+  setColour(NO_COLOUR);
+
+  StartBluetooth();
+  delay(3000); //Wait for Bluetooth to reconnect to the laptop
 }
 
 void loop() {
   // ------------- State Machine ----------------------
   switch(state)
-  { 
+  {
+    // Wait for user to press start on the Bluetooth GUI
+    case waitForGo:
+      WaitForBTGo();
+      state = findOne;
     // ----------Find an object-------------------
     case findOne:
       if(distance_readings < DISTANCE_ATTEMPTS) //Take multiple readings to be sure
@@ -106,10 +115,10 @@ void loop() {
             orderIn[objectCount] = currentPos;
             objectCount++;
             seek_time = millis();
-            setColour(NO_COLOUR);
             positions[currentPos] = 1;
             lookForLine(motorDriver);
             SendBTGoing(currentPos);
+            setColour(NO_COLOUR);
           } else
           {
             distance_readings++;
@@ -177,7 +186,7 @@ void loop() {
       break;
     //-----------Attack the red object------------
     case attack:
-     // swingArm();
+      SwingArm();
       delay(100);
       state = turn;
       curr_time = millis();
@@ -261,7 +270,7 @@ void SwingArm()
   int firstPos = 0.5 * 1000; //first position
   int endPos = 3.0 * 1000;//first position
   int current = 0;
-  int servoIncrement = 0.01 * 1000;
+  int servoIncrement = 0.01 * 800;
   
   /* Servo works by sending a 25 ms pulse.  
      0.5 ms at the start of the pulse will turn the servo to the 0 degree position
