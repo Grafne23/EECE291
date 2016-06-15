@@ -1,5 +1,4 @@
 import processing.serial.*;
-import bluetoothDesktop.*;
 
 final int RED = 0;
 final int BLUE = 1;
@@ -10,17 +9,24 @@ Serial port;
 
 color cor;
 int saveMe = 0;
-int startup=0;
+int startup = 0;
 byte index=0;
 int colours[] = new int[8];
 int order[] = new int[6];
 PImage carImage;
-int carX = 190, carY = 195;
+float carX = 190, carY = 195;
 int visits = 0;
 int goal = order[visits];
 int done = 1;
 int rotation = 0;
 int returning = 0;
+
+float speed = 0.5;
+
+boolean go = false;
+boolean stop = false;
+boolean goBack = false;
+
 String redCar = "Sprites/carRed";
 String yellowCar = "Sprites/carYellow";
 String blueCar = "Sprites/carBlue";
@@ -36,8 +42,8 @@ void setup() {
   }
   println("Available serial ports:");
   println(Serial.list());
-  //order[0] = -1;
-  
+  order[0] = -1;
+  /*
   order[0] = 1;
   order[1] = 6;
   order[2] = 4;
@@ -54,13 +60,16 @@ void setup() {
   colours[5] = BLUE;
   colours[6] = BLUE;
   colours[7] = GREEN;
-  
+  */
   // check on the output monitor wich port is available on your machine
-  port = new Serial(this, Serial.list()[1], 9600);
+  //port = new Serial(this, Serial.list()[0], 9600);
+  port = new Serial(this, "COM11", 9600);
   port.bufferUntil(' '); 
   carImage = new PImage();
   carImage = loadImage(yellowCar + str(rotation) + suffix);
   carImage.resize(80, 80);
+    port.write('Q');
+    
 }
 
 void draw() {
@@ -68,15 +77,15 @@ void draw() {
   textSize(24);
   fill(0, 102, 153, 204);
   text("Group 3 GUI Demo", 25, 25); 
+    if(visits < 6)
+   {
+     text("Running...", 180, 470);
+   } else
+   {
+     text("Done", 190, 470);
+   }
+  
   textSize(16);
-  /*
-  text(order[0], 255, 25);
-  text(order[1], 275, 25);
-  text(order[2], 295, 25);
-  text(order[3], 315, 25);
-  text(order[4], 335, 25);
-  text(order[5], 355, 25);
-  */
   strokeWeight(2);
   line(50, 60, 50, 400); //left
   line(60, 410, 400, 410); //bottom
@@ -89,13 +98,19 @@ void draw() {
   line(60, 230, 400, 230); //horizontal
   strokeWeight(1);
   
+  if(visits < 6)
+  {
+    getData();
+  }
   DrawCircles();
   goButton();
-  dataButton();
+  //dataButton();
 
-  if(done == 0)
+  if(go || goBack)
   {
     GetNextCarPos();
+    image(carImage, carX, carY);
+  } else if(stop) {
     image(carImage, carX, carY);
   } else {
     image(carImage, 190, 195);
@@ -127,8 +142,7 @@ void goButton()
   if(mousePressed==true && mouseX>250 && mouseX<300 && mouseY>450 && mouseY<475)
   {
     println("PRESSED");
-    //println(order[0]);
-    if(order[0] != -1) done = 0;
+    port.write('B'); //B for Begin :)
   }
 }
 
@@ -146,7 +160,6 @@ void DrawCircles()
     else if(i == 6 || i == 2) y = 230; 
     else y = 410; 
     
-    //if(colours[i] == 0) continue;
     switch(colours[i])
     {
       case NO_OBJECT:
@@ -163,24 +176,10 @@ void DrawCircles()
         fill(0, 0, 255, 255);
       break;
       default:
-      println("invalid case");
-       break;
     }
     ellipse(x, y, w, h);
     stroke(0);
-   //print(i);print(" : ");print(x);print(", ");println(y);
   }
-  /*
-  ellipse(50, 53, 25, 25); //x, y, width, height
-  ellipse(50, 230, 25, 25);
-  ellipse(50, 410, 25, 25); 
-  ellipse(230, 50, 25, 25); 
-  //ellipse(230, 230, 25, 25); 
-  ellipse(230, 410, 25, 25); 
-  ellipse(410, 50, 25, 25); 
-  ellipse(410, 230, 25, 25); 
-  ellipse(410, 410, 25, 25); 
-  */
 }
 
 void GetNextCarPos()
@@ -190,35 +189,35 @@ void GetNextCarPos()
     case 0:
       if(returning == 1)
       {
-        carY += 1;
+        carY += speed;
         rotation = 180;
       } else
       {
         rotation = 0;
-        carY -= 1;
+        carY -= speed;
       }
       break;
     case 1:
       if(returning == 1)
       {
-        carY += 1;
-        carX -= 1;
+        carY += speed;
+        carX -= speed;
         rotation = 225;
       } else
       {
         rotation = 45;
-        carY -= 1;
-        carX += 1;
+        carY -= speed;
+        carX += speed;
       }
       break;
     case 2:
       if(returning == 1)
       {
-        carX -= 1;
+        carX -= speed;
         rotation = 270;
       } else
       {
-        carX += 1;
+        carX += speed;
         rotation = 90;
       }
       break;
@@ -226,61 +225,61 @@ void GetNextCarPos()
       if(returning == 1)
       {
         rotation = 315;
-        carX -= 1;
-        carY -= 1;
+        carX -= speed;
+        carY -= speed;
       } else
       {
         rotation = 135;
-        carX += 1;
-        carY += 1;
+        carX += speed;
+        carY += speed;
       }
       break;
     case 4:
       if(returning == 1)
       {
-        carY -= 1;
+        carY -= speed;
         rotation = 0;
       } else
       {
         rotation = 180;
-        carY += 1;
+        carY += speed;
       }
       break;
     case 5:
       if(returning == 1)
       {
         rotation = 45;
-        carY -= 1;
-        carX += 1;
+        carY -= speed;
+        carX += speed;
       } else
       {
         rotation = 225;
-        carY += 1;
-        carX -= 1;
+        carY += speed;
+        carX -= speed;
       }
       break;
    case 6:
        if(returning == 1)
       {
         rotation = 90;
-        carX += 1;
+        carX += speed;
       } else
       {
         rotation = 270;
-        carX -= 1;
+        carX -= speed;
       }
       break;
    case 7:
       if(returning == 1)
       {
         rotation = 135;
-        carY += 1;
-        carX += 1;
+        carY += speed;
+        carX += speed;
       } else
       {
         rotation = 315;
-        carY -= 1;
-        carX -= 1;
+        carY -= speed;
+        carX -= speed;
       }
       break;
     default:
@@ -290,6 +289,8 @@ void GetNextCarPos()
   if((carY < 50 || carX < 60) || (carY > 325 || carX > 330) && (returning == 0))
   {
     returning = 1;
+    go = false;
+    stop = true;
   }
     
   if(returning == 0)
@@ -319,6 +320,8 @@ void GetNextCarPos()
   {
       visits++;
       returning = 0;
+      goBack = false;
+      stop = true;
       carY = 195;
       carX = 190;
   }
@@ -334,99 +337,42 @@ void GetNextCarPos()
   }
 }
 
-void DrawCar()
-{
-  PImage carImage = new PImage();
-  carImage = loadImage("car.png");
-  carImage.resize(50, 50);
-  image(carImage, 205, 205);
-}
-
 void getData()
 {
-  port.write('Q');
-  while(port.available() != 0)
+  byte[] inBuffer = new byte[4];
+  for(int i = 0; i < 4; i ++)
   {
-    switch(GetFromSerial())
-    {
-      case 'A':
-        println("read A");
-        order[0] = GetFromSerial();
-        println(order[0]);
-        break;
-      case 'B':
-        println("read B");
-        order[1] = GetFromSerial();
-        println(order[1]);
-        break;
-      case 'C':
-      println("read C");
-        order[2] = GetFromSerial();
-        println(order[2]);
-        break;
-      case 'D':
-      println("read D");
-        order[3] = GetFromSerial();
-        println(order[3]);
-        break;
-      case 'E':
-      println("read E");
-        order[4] = GetFromSerial();
-        println(order[4]);
-        break;
-      case 'F':
-      println("read F");
-        order[5] = GetFromSerial();
-        println(order[5]);
-        break;
-      case 'G':
-      println("read G");
-        colours[0] = GetFromSerial();
-        println(colours[0]);
-        break;
-      case 'H':
-      println("read H");
-        colours[1] = GetFromSerial();
-        println(colours[1]);
-        break;
-      case 'I':
-      println("read I");
-        colours[2] = GetFromSerial();
-        println(colours[2]);
-        break;
-      case 'J':
-      println("read J");
-        colours[3] = GetFromSerial();
-        println(colours[3]);
-        break;
-      case 'K':
-      println("read K");
-        colours[4] = GetFromSerial();
-        println(colours[4]);
-        break;
-      case 'L':
-      println("read L");
-        colours[5] = GetFromSerial();
-        println(colours[5]);
-        break;
-      case 'M':
-      println("read M");
-        colours[6] = GetFromSerial();
-        println(colours[6]);
-        break;
-      case 'N':
-      println("read N");
-        colours[7] = GetFromSerial();
-        println(colours[7]);
-        break;
-    }
+    inBuffer[i] = 0;
   }
-}
-
-int GetFromSerial()
-{
-  while (port.available()==0) {
-   delay(10);
+  
+  while(port.available() > 0)
+  {
+    port.readBytesUntil(69, inBuffer);
+    println(inBuffer);
   }
-  return port.read();
+  
+  if(inBuffer[0] != 0)
+  {
+  // if(inBuffer[1] ==  null) inBuffer[1] = 0;
+    
+   switch(inBuffer[0])
+   {
+     case 'G':
+       go = true;
+       order[visits] = inBuffer[1] - 48;
+       break;
+     case 'S':
+       stop = true;
+       go = false;
+       break;
+     case 'C':
+       colours[inBuffer[1] - 48] = inBuffer[2] - 48;
+       break;
+     case 'R':
+       goBack = true;
+       stop = false;
+       break;
+     default:
+   }
+  }
 }

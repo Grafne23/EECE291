@@ -1,7 +1,7 @@
 #include "WheelEncoders.h"
 
-int tilesRight;
-int tilesLeft;
+int tilesRight = 0;
+int tilesLeft = 0;
 
 /*
  * Purpose: Compares the number of tiles of both wheels, if they are unequal,
@@ -11,8 +11,6 @@ int tilesLeft;
  * Output:  tells which wheel to turn.
  */
 void backToCenter(int howFar, MotorDriver motorDriver){
-  tilesRight = howFar;
-  tilesLeft = howFar;
   countTiles(RIGHT_SENSOR, tilesRight);
   countTiles(LEFT_SENSOR, tilesLeft);
 
@@ -39,6 +37,8 @@ void backToCenter(int howFar, MotorDriver motorDriver){
 
     }
   }
+  resetTiles(tilesRight);                               // Reseting global variables
+  resetTiles(tilesLeft);
 }
 
 /*
