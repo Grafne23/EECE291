@@ -20,6 +20,11 @@ int goal = order[visits];
 int done = 1;
 int rotation = 0;
 int returning = 0;
+
+boolean go = false;
+boolean stop = false;
+boolean goBack = false;
+
 String redCar = "Sprites/carRed";
 String yellowCar = "Sprites/carYellow";
 String blueCar = "Sprites/carBlue";
@@ -60,6 +65,8 @@ void setup() {
   carImage = new PImage();
   carImage = loadImage(yellowCar + str(rotation) + suffix);
   carImage.resize(80, 80);
+    port.write('Q');
+    
 }
 
 void draw() {
@@ -92,13 +99,19 @@ void draw() {
   line(60, 230, 400, 230); //horizontal
   strokeWeight(1);
   
+  if(visits < 6)
+  {
+    getData();
+  }
   DrawCircles();
   goButton();
   dataButton();
 
-  if(done == 0)
+  if(go || goBack)
   {
     GetNextCarPos();
+    image(carImage, carX, carY);
+  } else if(stop) {
     image(carImage, carX, carY);
   } else {
     image(carImage, 190, 195);
@@ -293,6 +306,7 @@ void GetNextCarPos()
   if((carY < 50 || carX < 60) || (carY > 325 || carX > 330) && (returning == 0))
   {
     returning = 1;
+    
   }
     
   if(returning == 0)
@@ -345,6 +359,46 @@ void DrawCar()
   image(carImage, 205, 205);
 }
 void getData()
+{
+  byte[] inBuffer = new byte[4];
+  for(int i = 0; i < 4; i ++)
+  {
+    inBuffer[i] = 0;
+  }
+  
+  while(port.available() > 0)
+  {
+    port.readBytesUntil(69, inBuffer);
+    println(inBuffer);
+  }
+  
+  if(inBuffer[0] != 0)
+  {
+  // if(inBuffer[1] ==  null) inBuffer[1] = 0;
+    
+   switch(inBuffer[0])
+   {
+     case 'G':
+       go = true;
+       order[visits] = inBuffer[1] - 48;
+       break;
+     case 'S':
+       stop = true;
+       go = false;
+       break;
+     case 'C':
+       colours[inBuffer[1] - 48] = inBuffer[2] - 48;
+       break;
+     case 'R':
+       goBack = true;
+       stop = false;
+       break;
+     default:
+   }
+  }
+}
+
+void getAllData()
 {
   byte[] inBuffer = new byte[14];
   for(int i = 0; i < 14; i ++)

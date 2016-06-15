@@ -55,6 +55,44 @@ void StartBluetooth()
   bluetooth.begin(9600);  // Start bluetooth serial at 9600
 }
 
+void SendBTGoing(int pos)
+{     
+  if(bluetooth.available())
+  {
+    bluetooth.print('G');
+    bluetooth.print(pos);
+    bluetooth.print('E');
+  }
+}
+void SendBTStopped(int pos)
+{     
+  if(bluetooth.available())
+  {
+    bluetooth.print('S');
+    bluetooth.print(pos);
+    bluetooth.print('E');
+  }
+}
+void SendBTColour(int pos, int colour)
+{     
+  if(bluetooth.available())
+  {
+    bluetooth.print('C');
+    bluetooth.print(pos);
+    bluetooth.print(colour);
+    bluetooth.print('E');
+  }
+}
+void SendBTReturning(int pos)
+{
+  if(bluetooth.available())
+  {
+    bluetooth.print('R');
+    bluetooth.print(pos);
+    bluetooth.print('E');
+  }
+}
+
 void SendBTData()
 {      
   Serial.println("reading");

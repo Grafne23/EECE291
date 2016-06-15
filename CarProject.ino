@@ -18,6 +18,8 @@
 
 MotorDriver motorDriver;
 
+int j = 0;
+
 int rOn = 0;
 int lOn = 0;
 unsigned long curr_time = 0;
@@ -107,6 +109,7 @@ void loop() {
             setColour(NO_COLOUR);
             positions[currentPos] = 1;
             lookForLine(motorDriver);
+            SendBTGoing(currentPos);
           } else
           {
             distance_readings++;
@@ -152,6 +155,7 @@ void loop() {
         
         //we've reached the stopping distance
         state = stopAndDetect; //next state
+        SendBTStopped(currentPos);
         /* Keep track of how long it took us to get there so we can return */
         out_time = millis() - seek_time; 
       break;
@@ -163,6 +167,7 @@ void loop() {
       delay(500);
       detectedColour = detectObjectColourAveraging();
       coloursIn[currentPos] = detectedColour;
+      SendBTColour(currentPos, detectedColour);
       delay(500);
       curr_time = millis();
       if (detectedColour == RED)
@@ -179,6 +184,7 @@ void loop() {
       break;
     // ----------Turn around----------------------
     case turn:
+      SendBTReturning(currentPos);
       motorDriver.turnAround();
       delay(100);
       state = goBack; //next state
@@ -228,7 +234,16 @@ void loop() {
       //Serial.print("object at distance: ");Serial.print(objectDistance);Serial.println(" cm");
       //delay(5000);
       StartBluetooth();
-      SendBTData();
+      //SendBTData();
+      delay(10000);
+      SendBTGoing(j);
+      delay(5000);
+      SendBTStopped(j);
+      delay(500);
+      SendBTColour(j, 0);
+      delay(1000);
+      SendBTReturning(j++);
+      delay(10000);
      // detectObjectColourAveraging();
      // delay(500);
     default:
