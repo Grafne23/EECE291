@@ -58,10 +58,10 @@ enum states{
 states state = waitForGo;
 
 // Testing the colours and orders
-byte orderIn[6] = {1, 6, 4, 5, 3, 7};
-byte coloursIn[8] = {0, 1, 0, 1, 2, 3, 3, 2};
-//byte orderIn[6] = {-1, -1, -1, -1, -1, -1};
-//byte coloursIn[8] = {3, 3, 3, 3, 3, 3, 3, 3};
+//byte orderIn[6] = {1, 6, 4, 5, 3, 7};
+//byte coloursIn[8] = {0, 1, 0, 1, 2, 3, 3, 2};
+byte orderIn[6] = {-1, -1, -1, -1, -1, -1};
+byte coloursIn[8] = {3, 3, 3, 3, 3, 3, 3, 3};
 
 void setup() {
   Serial.begin(9600);
@@ -88,11 +88,10 @@ void setup() {
 
   /*Servo Arm */
   pinMode(SERVO_PIN, OUTPUT);
-<<<<<<< HEAD
 
   /* Wheel Encoders */
-  pinMode(RIGHT_SENSOR, INPUT);
-  pinMode(LEFT_SENSOR, INPUT);
+  //pinMode(RIGHT_SENSOR, INPUT);
+  //pinMode(LEFT_SENSOR, INPUT);
 
   setColour(NO_COLOUR);
 
@@ -212,16 +211,15 @@ void loop() {
       break;
     // ---------- return to the center-------------------
     case goBack:
-      /*readLineSensors(&rOn, &lOn);
+      readLineSensors(&rOn, &lOn);
       followLine(rOn, lOn, motorDriver);
-      /* Return to the middle base on a factor of the time it took us to get out there 
+      /* Return to the middle base on a factor of the time it took us to get out there */
       if(millis() - curr_time > out_time * RETURN_FACTOR)
       {
         curr_time = millis();
         state = halt; //next state
       }
-      */
-      backToCenter(tilesToObject, motorDriver); 
+      //backToCenter(tilesToObject, motorDriver); 
       break;
     case halt:
       motorDriver.stop(RMOTOR);
