@@ -7,7 +7,6 @@ final int NO_OBJECT = 3;
 
 Serial port;
 
-color cor;
 int saveMe = 0;
 int startup = 0;
 byte index=0;
@@ -20,13 +19,11 @@ int goal = order[visits];
 int done = 1;
 int rotation = 0;
 int returning = 0;
-
 float speed = 0.5;
 
 boolean go = false;
 boolean stop = false;
 boolean goBack = false;
-
 String redCar = "Sprites/carRed";
 String yellowCar = "Sprites/carYellow";
 String blueCar = "Sprites/carBlue";
@@ -44,14 +41,13 @@ void setup() {
   println(Serial.list());
   order[0] = -1;
   /*
+  Data For Testing!
   order[0] = 1;
   order[1] = 6;
   order[2] = 4;
   order[3] = 5;
   order[4] = 3;
   order[5] = 7;
-  
-  // Keep track of the objects
   colours[0] = NO_OBJECT;
   colours[1] = RED;
   colours[2] = NO_OBJECT;
@@ -61,15 +57,15 @@ void setup() {
   colours[6] = BLUE;
   colours[7] = GREEN;
   */
-  // check on the output monitor wich port is available on your machine
+  
+  //use this to check on the output monitor wich port is available on your machine
   //port = new Serial(this, Serial.list()[0], 9600);
-  port = new Serial(this, "COM11", 9600);
+  port = new Serial(this, "COM11", 9600); 
   port.bufferUntil(' '); 
   carImage = new PImage();
   carImage = loadImage(yellowCar + str(rotation) + suffix);
   carImage.resize(80, 80);
-    port.write('Q');
-    
+  port.write('Q');
 }
 
 void draw() {
@@ -104,8 +100,7 @@ void draw() {
   }
   DrawCircles();
   goButton();
-  //dataButton();
-
+  
   if(go || goBack)
   {
     GetNextCarPos();
@@ -115,9 +110,10 @@ void draw() {
   } else {
     image(carImage, 190, 195);
   }
- // println("loop");
 }
 
+/* Data button used for getting Data when car is plugged 
+  in at the end of demo */
 void dataButton()
 {
   textSize(16);
@@ -132,6 +128,7 @@ void dataButton()
   }
 }
 
+/* Sends the go signal to start the demo */
 void goButton()
 {
   textSize(16);
@@ -146,6 +143,7 @@ void goButton()
   }
 }
 
+/* Draw the circles in the corners */
 void DrawCircles()
 {
   int x, y, w = 25, h = 25;
@@ -182,6 +180,7 @@ void DrawCircles()
   }
 }
 
+/* Calculates the next car position based on its current goal*/
 void GetNextCarPos()
 {
   switch(goal)
@@ -337,6 +336,7 @@ void GetNextCarPos()
   }
 }
 
+/* Read data from the serial */
 void getData()
 {
   byte[] inBuffer = new byte[4];
@@ -347,28 +347,27 @@ void getData()
   
   while(port.available() > 0)
   {
-    port.readBytesUntil(69, inBuffer);
+    /* all messages end in E */
+    port.readBytesUntil('E', inBuffer); 
     println(inBuffer);
   }
   
   if(inBuffer[0] != 0)
-  {
-  // if(inBuffer[1] ==  null) inBuffer[1] = 0;
-    
+  { 
    switch(inBuffer[0])
    {
-     case 'G':
+     case 'G': //for Go
        go = true;
        order[visits] = inBuffer[1] - 48;
        break;
-     case 'S':
+     case 'S': //for Stop
        stop = true;
        go = false;
        break;
-     case 'C':
+     case 'C': //for Colour
        colours[inBuffer[1] - 48] = inBuffer[2] - 48;
        break;
-     case 'R':
+     case 'R': //for returning
        goBack = true;
        stop = false;
        break;

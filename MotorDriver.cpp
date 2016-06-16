@@ -21,6 +21,7 @@
 #include "MotorDriver.h"
 #include "LineSensing.h"
 #include "seeed_pwm.h"
+#define BATTERIES 2
 
 void MotorDriver::begin()
 {
@@ -83,7 +84,8 @@ void MotorDriver::turnAround()
   //make sure we've turned enough to be off a line
   speed(RMOTOR, 100);  
   speed(LMOTOR, -100);
-  delay(1000);
+  if(BATTERIES == 2) delay(1000);
+  if(BATTERIES == 1) delay(500);
   int rOn = 0, lOn = 0;
     
   while(true)
@@ -104,6 +106,31 @@ void MotorDriver::turnAround()
     }
     
   }
+}
+
+// Waddle in the given direction ------------------------
+void MotorDriver::Waddle(int dir)
+{
+  curr_time = millis(); 
+  //int turnTime = 75; For one battery
+  int turnTime = 20;
+  if(dir == RIGHT)
+  {
+    while(millis() - curr_time < turnTime)
+    {
+      speed(RMOTOR,-100);  
+      speed(LMOTOR, 100);
+    }
+  } else
+  {
+    while(millis() - curr_time < turnTime)
+    {
+      speed(RMOTOR, 100);  
+      speed(LMOTOR, -100);
+    }
+  }
+  speed(RMOTOR, 0);  
+  speed(LMOTOR, 0);
 }
 
 // Turn the robot 45degrees ------------------------

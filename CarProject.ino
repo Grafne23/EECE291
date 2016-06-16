@@ -3,18 +3,17 @@
 #include "ColourSensing.h"
 #include "DistanceSensing.h"
 #include "SerialComs.h"
-#include "WheelEncoders.h"
 
 #include <Wire.h>
 
-#define STRAIGHT1_DONE 10000
-#define DISTANCE_ATTEMPTS 10
-#define STOP_DISTANCE 2
-#define MAX_OBJECT_DISTANCE 85
-#define RETURN_FACTOR 0.90
+#define DISTANCE_ATTEMPTS 150
+#define STOP_DISTANCE 3
+#define MAX_OBJECT_DISTANCE 78
+#define RETURN_FACTOR 0.9 //0.9
 #define ARM_REST 150
 #define SERVO_PIN 14
 #define MAX_OBJECTS 6
+
 
 MotorDriver motorDriver;
 
@@ -55,11 +54,11 @@ enum states{
   justDistance //This is used for Module 2 Requirement 4 only
 };
 
-states state = waitForGo;
+states state = findOne;
 
 // Testing the colours and orders
-//byte orderIn[6] = {1, 6, 4, 5, 3, 7};
-//byte coloursIn[8] = {0, 1, 0, 1, 2, 3, 3, 2};
+// byte orderIn[6] = {1, 6, 4, 5, 3, 7};
+// byte coloursIn[8] = {0, 1, 0, 1, 2, 3, 3, 2};
 byte orderIn[6] = {-1, -1, -1, -1, -1, -1};
 byte coloursIn[8] = {3, 3, 3, 3, 3, 3, 3, 3};
 
@@ -89,10 +88,6 @@ void setup() {
   /*Servo Arm */
   pinMode(SERVO_PIN, OUTPUT);
 
-  /* Wheel Encoders */
-  //pinMode(RIGHT_SENSOR, INPUT);
-  //pinMode(LEFT_SENSOR, INPUT);
-
   setColour(NO_COLOUR);
 
   StartBluetooth();
@@ -103,35 +98,76 @@ void loop() {
   // ------------- State Machine ----------------------
   switch(state)
   {
-    // Wait for user to press start on the Bluetooth GUI
+    // Wait for user to press start on the Bluetooth GUI --------------
     case waitForGo:
       WaitForBTGo();
       state = findOne;
     // ----------Find an object-------------------
     case findOne:
-      if(distance_readings < DISTANCE_ATTEMPTS) //Take multiple readings to be sure
+      /* If we haven't visited this one before, take multiple readings to be sure */
+      if(distance_readings < DISTANCE_ATTEMPTS && positions[currentPos] == 0)
       {
         objectDistance = getDistance();
         Serial.print("object at distance: ");Serial.println(objectDistance);
         delay(50);
+        if(distance_readings == 9)
+        {
+          motorDriver.Waddle(RIGHT);
+        } else if (distance_readings == 19)
+        {
+          motorDriver.Waddle(RIGHT);
+        } else if (distance_readings == 29)
+        {
+          motorDriver.Waddle(RIGHT);
+        } else if (distance_readings == 39)
+        {
+          motorDriver.Waddle(RIGHT);
+        } else if (distance_readings == 49)
+        {
+          motorDriver.Waddle(RIGHT);
+        } else if (distance_readings == 59)
+        {
+          motorDriver.Waddle(LEFT);
+          motorDriver.Waddle(LEFT);
+          motorDriver.Waddle(LEFT);
+          motorDriver.Waddle(LEFT);
+          motorDriver.Waddle(LEFT);
+        } else if (distance_readings == 69)
+        {
+          motorDriver.Waddle(LEFT);
+        } else if (distance_readings == 79)
+        {
+          motorDriver.Waddle(LEFT);
+        } else if (distance_readings == 89)
+        {
+          motorDriver.Waddle(LEFT);
+          } else if (distance_readings == 99)
+        {
+          motorDriver.Waddle(LEFT);
+          } else if (distance_readings == 109)
+        {
+          motorDriver.Waddle(LEFT);
+          } else if (distance_readings == 119)
+        {
+          motorDriver.Waddle(RIGHT);
+          motorDriver.Waddle(RIGHT);
+          motorDriver.Waddle(RIGHT);
+          motorDriver.Waddle(RIGHT);
+          motorDriver.Waddle(RIGHT);
+          delay(20);
+        }
+        
         if(objectDistance > 0 && objectDistance < MAX_OBJECT_DISTANCE) //found an object on this point
         {
           Serial.print("object at distance: ");Serial.println(objectDistance);
-          if(positions[currentPos] == 0) //If we haven't visited this one before
-          {
-            tilesToObject = cmToTiles(objectDistance); // converts the distance to tiles (used to go back)
-            state = goToOne; //next state
-            orderIn[objectCount] = currentPos;
-            objectCount++;
-            seek_time = millis();
-            positions[currentPos] = 1;
-            lookForLine(motorDriver);
-            SendBTGoing(currentPos);
-            setColour(NO_COLOUR);
-          } else
-          {
-            distance_readings++;
-          }
+          state = goToOne; //next state
+          orderIn[objectCount] = currentPos;
+          objectCount++;
+          positions[currentPos] = 1;
+          lookForLine(motorDriver);
+          SendBTGoing(currentPos);
+          setColour(NO_COLOUR);
+          seek_time = millis();
         } else
         {
           distance_readings++;
@@ -248,24 +284,10 @@ void loop() {
       }
       break;
     case justDistance:
-    delay(500);
-      //SwingArm();
-      //objectDistance = getDistance();
-      //Serial.print("object at distance: ");Serial.print(objectDistance);Serial.println(" cm");
-      //delay(5000);
-      StartBluetooth();
-      //SendBTData();
-      delay(10000);
-      SendBTGoing(j);
-      delay(5000);
-      SendBTStopped(j);
-      delay(500);
-      SendBTColour(j, 0);
-      delay(1000);
-      SendBTReturning(j++);
-      delay(10000);
-     // detectObjectColourAveraging();
-     // delay(500);
+      delay(200);
+      objectDistance = getDistance();
+      Serial.print("object at distance: ");Serial.print(objectDistance);Serial.println(" cm");
+      delay(100);
     default:
       break;
   }

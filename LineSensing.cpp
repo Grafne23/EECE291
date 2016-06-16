@@ -102,7 +102,7 @@ void readLineSensor(int sensorByte, int *rOn, int *lOn){
 // This function sweeps back and forth looking for a line -----------
 void lookForLine(MotorDriver motorDriver)
 {
-  int rOn, lOn, sweep = 0;
+  int rOn, lOn, sweep = 0, incr = 0;
   readLineSensor(RSENSOR, &rOn, &lOn);
   readLineSensor(LSENSOR, &rOn, &lOn);
   if(rOn == 1 || lOn == 1)
@@ -124,11 +124,11 @@ void lookForLine(MotorDriver motorDriver)
       motorDriver.speed(LMOTOR, -90);
       sweep = 1;
    }
-   delay(300);
+   delay(300 + 100 * incr++);
    readLineSensor(RSENSOR, &rOn, &lOn);
    readLineSensor(LSENSOR, &rOn, &lOn);
    delay(10);
-  } while (rOn == 0 && lOn == 0);
+  } while (rOn == 0 && lOn == 0 && incr < 4);
 }
 
 // Read values from both line sensors -----------------------------

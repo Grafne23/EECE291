@@ -1,7 +1,7 @@
 #define RMOTOR 0                             //right motor pin
 #define LMOTOR 1                             //left motor pin
-#define RSENSOR 0x0                          //right ir line sensor address
-#define LSENSOR 0x1                          //left ir line sensor address
+#define RSENSOR 0x1                          //right ir line sensor address
+#define LSENSOR 0x0                          //left ir line sensor address
 #define CSENSOR A0
 
 //ir line sensor modes

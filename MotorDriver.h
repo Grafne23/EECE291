@@ -18,7 +18,10 @@
 /* custom defines*/
 #define RMOTOR 0       //right motor pin
 #define LMOTOR 1       //left motor pin
-#define DEGREE_TIME 610
+//#define DEGREE_TIME 627 For one battery 
+#define DEGREE_TIME 315
+#define RIGHT 0
+#define LEFT 1
 
 #define SPD_BUFF_STEPS        100
 
@@ -46,6 +49,7 @@ public:
     void speed(int motor_id, int _speed);
     void stop(unsigned char motor_id);
     void brake(unsigned char motor_id);
+    void Waddle(int dir);
     void turn45();
     void turnAround();
 };

@@ -13,7 +13,7 @@ long getDistance()
  digitalWrite(ULTRA_SENSOR, LOW);
  delayMicroseconds(2);
  digitalWrite(ULTRA_SENSOR, HIGH);
- delayMicroseconds(5);
+ delayMicroseconds(2);
  digitalWrite(ULTRA_SENSOR, LOW);
 
   //read ultrasonic sensor, convert duration of pulse to centimeters
