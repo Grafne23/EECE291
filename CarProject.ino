@@ -6,7 +6,7 @@
 
 #include <Wire.h>
 
-#define DISTANCE_ATTEMPTS 150
+#define DISTANCE_ATTEMPTS 65
 #define STOP_DISTANCE 3
 #define MAX_OBJECT_DISTANCE 78
 #define RETURN_FACTOR 0.9 //0.9
@@ -54,7 +54,7 @@ enum states{
   justDistance //This is used for Module 2 Requirement 4 only
 };
 
-states state = findOne;
+states state = waitForGo;
 
 // Testing the colours and orders
 // byte orderIn[6] = {1, 6, 4, 5, 3, 7};
@@ -110,44 +110,44 @@ void loop() {
         objectDistance = getDistance();
         Serial.print("object at distance: ");Serial.println(objectDistance);
         delay(50);
-        if(distance_readings == 9)
+        if(distance_readings == 4)
+        {
+          motorDriver.Waddle(RIGHT);
+        } else if (distance_readings == 9)
+        {
+          motorDriver.Waddle(RIGHT);
+        } else if (distance_readings == 14)
         {
           motorDriver.Waddle(RIGHT);
         } else if (distance_readings == 19)
         {
           motorDriver.Waddle(RIGHT);
+        } else if (distance_readings == 24)
+        {
+          motorDriver.Waddle(RIGHT);
         } else if (distance_readings == 29)
         {
-          motorDriver.Waddle(RIGHT);
+          motorDriver.Waddle(LEFT);
+          motorDriver.Waddle(LEFT);
+          motorDriver.Waddle(LEFT);
+          motorDriver.Waddle(LEFT);
+          motorDriver.Waddle(LEFT);
+        } else if (distance_readings == 34)
+        {
+          motorDriver.Waddle(LEFT);
         } else if (distance_readings == 39)
         {
-          motorDriver.Waddle(RIGHT);
-        } else if (distance_readings == 49)
-        {
-          motorDriver.Waddle(RIGHT);
-        } else if (distance_readings == 59)
+          motorDriver.Waddle(LEFT);
+        } else if (distance_readings == 44)
         {
           motorDriver.Waddle(LEFT);
-          motorDriver.Waddle(LEFT);
-          motorDriver.Waddle(LEFT);
-          motorDriver.Waddle(LEFT);
-          motorDriver.Waddle(LEFT);
-        } else if (distance_readings == 69)
+          } else if (distance_readings == 49)
         {
           motorDriver.Waddle(LEFT);
-        } else if (distance_readings == 79)
+          } else if (distance_readings == 54)
         {
           motorDriver.Waddle(LEFT);
-        } else if (distance_readings == 89)
-        {
-          motorDriver.Waddle(LEFT);
-          } else if (distance_readings == 99)
-        {
-          motorDriver.Waddle(LEFT);
-          } else if (distance_readings == 109)
-        {
-          motorDriver.Waddle(LEFT);
-          } else if (distance_readings == 119)
+          } else if (distance_readings == 59)
         {
           motorDriver.Waddle(RIGHT);
           motorDriver.Waddle(RIGHT);
@@ -178,6 +178,7 @@ void loop() {
          * or we've visited this one already. Turn 45 degrees and try again!
          */
          motorDriver.turn45();
+        // positions[currentPos] = 1; to skip spaces
          currentPos++;
          if(currentPos == 8) currentPos = 0;
          distance_readings = 0;

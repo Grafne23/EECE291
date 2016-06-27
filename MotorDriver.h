@@ -19,7 +19,7 @@
 #define RMOTOR 0       //right motor pin
 #define LMOTOR 1       //left motor pin
 //#define DEGREE_TIME 627 For one battery 
-#define DEGREE_TIME 315
+#define DEGREE_TIME 320
 #define RIGHT 0
 #define LEFT 1
 

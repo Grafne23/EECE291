@@ -80,7 +80,6 @@ int blackOrWhite(int analogPin){
 /*
  * Purpose: reset global variable used to count tiles. 
  */
-
 void resetTiles(int globalTiles){
   globalTiles = 0;
 }

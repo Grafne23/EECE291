@@ -39,9 +39,10 @@ void setup() {
   }
   println("Available serial ports:");
   println(Serial.list());
+  
   order[0] = -1;
   /*
-  Data For Testing!
+  //Data For Testing!
   order[0] = 1;
   order[1] = 6;
   order[2] = 4;
@@ -59,8 +60,8 @@ void setup() {
   */
   
   //use this to check on the output monitor wich port is available on your machine
-  //port = new Serial(this, Serial.list()[0], 9600);
-  port = new Serial(this, "COM11", 9600); 
+  port = new Serial(this, Serial.list()[1], 9600);
+  //port = new Serial(this, "COM11", 9600); 
   port.bufferUntil(' '); 
   carImage = new PImage();
   carImage = loadImage(yellowCar + str(rotation) + suffix);
@@ -75,10 +76,10 @@ void draw() {
   text("Group 3 GUI Demo", 25, 25); 
     if(visits < 6)
    {
-     text("Running...", 180, 470);
+     text("Running...", 120, 470);
    } else
    {
-     text("Done", 190, 470);
+     text("Done", 120, 470);
    }
   
   textSize(16);
